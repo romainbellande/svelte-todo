@@ -1,12 +1,21 @@
 <script lang="ts">
     import SidenavTop from "./sidenav-top.svelte";
-    import { SidenavItem } from "./sidenav-item";
+    import SidenavItem from "./sidenav-item.svelte";
+    import { Home, LayoutDashboard } from "lucide-svelte";
 </script>
 
-
-<aside class="h-full overflow-auto flex flex-col fixed left-0 right-0 top-0 z-50 w-full border-r-2 border-r-muted transition-[width] md:bottom-0 md:right-auto md:h-svh md:w-64">
-    <SidenavTop />
-    <nav>
-        <SidenavItem href="/">Home</SidenavItem>
-    </nav>
+<aside class="fixed inset-y-0 left-0 z-50 hidden w-64 transform bg-white shadow-lg transition-transform duration-300 ease-in-out md:block">
+    <div class="flex h-full flex-col">
+        <SidenavTop />
+        <nav class="flex-1 space-y-1 px-2 py-4">
+            <SidenavItem href="/">
+                <Home class="mr-3 h-5 w-5" />
+                Home
+            </SidenavItem>
+            <SidenavItem href="/boards">
+                <LayoutDashboard class="mr-3 h-5 w-5" />
+                Boards
+            </SidenavItem>
+        </nav>
+    </div>
 </aside>

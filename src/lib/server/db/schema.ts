@@ -7,12 +7,15 @@ const id = text('id').primaryKey().$defaultFn(createId);
 export const user = pgTable('user', {
     id,
     age: integer('age'),
-    username: text('username').notNull().unique(),
+    email: text('email').notNull().unique(),
+    firstname: text('firstname').notNull(),
+    lastname: text('lastname').notNull(),
     passwordHash: text('password_hash').notNull()
 });
 
 export const userRelations = relations(user, ({ many }) => ({
-    boards: many(board)
+    boards: many(board),
+    assignedCards: many(card)
 }));
 
 export const session = pgTable("session", {
@@ -58,6 +61,7 @@ export const card = pgTable('card', {
     description: text('description'),
     listId: text('list_id').notNull().references(() => list.id),
     position: text('position').notNull(),
+    assigneeId: text('assignee_id').references(() => user.id),
     createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' }).defaultNow().notNull()
 });
 
@@ -65,6 +69,10 @@ export const cardRelations = relations(card, ({ one }) => ({
     list: one(list, {
         fields: [card.listId],
         references: [list.id],
+    }),
+    assignee: one(user, {
+        fields: [card.assigneeId],
+        references: [user.id],
     })
 }));
 

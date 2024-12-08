@@ -1,3 +1,5 @@
-<main class="overflow-x-hidden pt-16 transition-[margin] md:overflow-y-hidden md:pt-0 md:ml-64 h-full">
-    <slot />
+<main class="relative h-screen overflow-x-hidden transition-[margin] duration-300 md:ml-64">
+    <div class="h-full">
+        <slot />
+    </div>
 </main>

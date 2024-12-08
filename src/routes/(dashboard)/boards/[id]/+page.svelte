@@ -6,13 +6,13 @@
     
     export let data: PageData;
 
+    $: lists = data.board.lists.sort((a, b) => a.order - b.order);
     $: newListName = '';
     $: showNewListInput = false;
     $: newCardTitle = '';
     let activeListForNewCard: string | null = null;
-    $: lists = data.board.lists;
-
-    let editingCard: { id: string; title: string; description: string | null } | null = null;
+    let editingCard: { id: string; title: string; description: string | null; assigneeId: string | null } | null = null;
+    let editingList: { id: string; name: string } | null = null;
 
     function startEditing(card: any) {
         editingCard = { ...card };
@@ -20,6 +20,14 @@
 
     function cancelEditing() {
         editingCard = null;
+    }
+
+    function startEditingList(list: any) {
+        editingList = { id: list.id, name: list.name };
+    }
+
+    function cancelEditingList() {
+        editingList = null;
     }
 
     let previousCards: Record<string, any[]> = {};
@@ -184,28 +192,63 @@
     >
         {#each lists as list (list.id)}
             <div 
-                class="bg-gray-100 p-4 rounded min-w-[300px] max-w-[300px]"
+                class="bg-gray-100 rounded-lg p-4 min-w-[300px]"
                 role="region"
             >
-                <h3 class="font-bold mb-4">{list.name}</h3>
-                
+                <div class="flex justify-between items-center mb-4">
+                    {#if editingList?.id === list.id}
+                        <form 
+                            method="POST" 
+                            action="?/updateList" 
+                            use:enhance={() => {
+                                return async ({ update }) => {
+                                    await update();
+                                    editingList = null;
+                                };
+                            }}
+                            class="flex-1"
+                        >
+                            <input type="hidden" name="listId" value={list.id} />
+                            <div class="flex gap-2">
+                                <input
+                                    type="text"
+                                    name="name"
+                                    bind:value={editingList.name}
+                                    class="flex-1 px-2 py-1 border rounded"
+                                    autofocus
+                                />
+                                <button type="submit" class="px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600">Save</button>
+                                <button
+                                    type="button"
+                                    class="px-2 py-1 bg-gray-500 text-white rounded hover:bg-gray-600"
+                                    on:click={() => (editingList = null)}>Cancel</button
+                                >
+                            </div>
+                        </form>
+                    {:else}
+                        <h3
+                            class="text-lg font-semibold cursor-pointer hover:text-blue-600"
+                            on:click={() => {
+                                editingList = { id: list.id, name: list.name };
+                            }}
+                        >
+                            {list.name}
+                        </h3>
+                    {/if}
+                </div>
+
                 <div 
-                    class="space-y-2 min-h-[2rem]"
+                    class="space-y-2"
                     use:dndzone={{
                         items: list.cards,
-                        flipDurationMs: 300,
-                        dropTargetStyle: {
-                            outline: "2px dashed #4a5568",
-                        },
-                        dragDisabled: false
+                        dragDisabled: !!editingCard,
+                        flipDurationMs: 0
                     }}
-                    on:consider={(e) => handleCardDndConsider(e, list.id)}
-                    on:finalize={(e) => handleCardDndFinalize(e, list.id)}
+                    on:consider={e => handleCardDndConsider(e, list.id)}
+                    on:finalize={e => handleCardDndFinalize(e, list.id)}
                 >
                     {#each list.cards as card (card.id)}
-                        <div
-                            class="bg-white p-3 rounded shadow"
-                        >
+                        <div class="bg-white p-3 rounded shadow">
                             {#if editingCard?.id === card.id}
                                 <form 
                                     method="POST" 
@@ -216,49 +259,65 @@
                                             editingCard = null;
                                         };
                                     }}
+                                    class="space-y-2"
                                 >
                                     <input type="hidden" name="cardId" value={card.id} />
                                     <input
                                         type="text"
                                         name="title"
                                         bind:value={editingCard.title}
-                                        class="w-full p-2 border rounded"
-                                        placeholder="Card title"
+                                        class="w-full px-2 py-1 border rounded"
+                                        autofocus
                                     />
                                     <textarea
                                         name="description"
-                                        bind:value={editingCard.description}
-                                        class="w-full p-2 border rounded"
-                                        placeholder="Add a description..."
-                                        rows="3"
-                                    ></textarea>
-                                    <div class="flex justify-end gap-2">
-                                        <button 
-                                            type="button" 
-                                            class="px-3 py-1 text-sm text-gray-600 hover:text-gray-800"
-                                            on:click={cancelEditing}
+                                        class="w-full px-2 py-1 border rounded"
+                                        rows="2">{editingCard.description || ''}</textarea
+                                    >
+                                    <select name="assigneeId" class="w-full px-2 py-1 border rounded">
+                                        <option value="">Unassigned</option>
+                                        {#each data.users as user}
+                                            <option value={user.id} selected={card.assigneeId === user.id}>
+                                                {user.firstname} {user.lastname}
+                                            </option>
+                                        {/each}
+                                    </select>
+                                    <div class="flex gap-2">
+                                        <button type="submit" class="px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+                                            >Save</button
                                         >
-                                            Cancel
-                                        </button>
-                                        <button 
-                                            type="submit"
-                                            class="px-3 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600"
+                                        <button
+                                            type="button"
+                                            class="px-2 py-1 bg-gray-500 text-white rounded hover:bg-gray-600"
+                                            on:click={() => (editingCard = null)}>Cancel</button
                                         >
-                                            Save
-                                        </button>
                                     </div>
                                 </form>
                             {:else}
-                                <button 
-                                    type="button"
-                                    class="text-left w-full cursor-pointer hover:bg-gray-100 p-2 rounded"
-                                    on:click={() => startEditing(card)}
+                                <div
+                                    class="cursor-pointer"
+                                    on:click={() => {
+                                        editingCard = {
+                                            id: card.id,
+                                            title: card.title,
+                                            description: card.description,
+                                            assigneeId: card.assigneeId
+                                        };
+                                    }}
                                 >
-                                    <div class="font-medium">{card.title}</div>
+                                    <h4 class="font-medium">{card.title}</h4>
                                     {#if card.description}
-                                        <div class="text-sm text-gray-600 mt-1">{card.description}</div>
+                                        <p class="text-sm text-gray-600 mt-1">{card.description}</p>
                                     {/if}
-                                </button>
+                                    {#if card.assignee}
+                                        <div class="mt-2 text-sm text-gray-500 flex items-center gap-1">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                                <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+                                            </svg>
+                                            {card.assignee.firstname} {card.assignee.lastname}
+                                        </div>
+                                    {/if}
+                                </div>
                             {/if}
                         </div>
                     {/each}

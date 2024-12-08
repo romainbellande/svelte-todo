@@ -1,3 +1,12 @@
-<div class="h-[var(--header-height)] items-center gap-4 bg-background p-4 flex-none sticky top-0 z-50 flex justify-between px-4 py-3 shadow-sm md:px-4">
-    Cortex
+<script lang="ts">
+    import * as t from "$lib/paraglide/messages";
+</script>
+
+<div class="flex items-center gap-3 bg-white px-4 py-5 border-b">
+    <div class="flex items-center gap-2">
+        <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
+            <span class="text-lg font-bold text-white">T</span>
+        </div>
+        <span class="text-lg font-semibold">{t.app_name()}</span>
+    </div>
 </div>

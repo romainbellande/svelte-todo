@@ -9,11 +9,17 @@
 </script>
 
 <ParaglideJS {i18n}>
-	<div>
+	<div class="min-h-screen bg-gray-50">
 		<Sidenav />
 		<Main>
-			<Header />
-			{@render children()}
+			<div class="flex flex-col h-full">
+				<Header />
+				<div class="flex-1 p-6 overflow-auto">
+					<div class="container mx-auto">
+						{@render children()}
+					</div>
+				</div>
+			</div>
 		</Main>
 	</div>
 </ParaglideJS>

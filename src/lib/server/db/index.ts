@@ -1,10 +1,44 @@
 import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
-import { env } from '$env/dynamic/private';
 import * as schema from './schema';
+import { config } from 'dotenv';
 
-if (!env.DATABASE_URL) throw new Error('DATABASE_URL is not set');
+// Load environment variables when not in SvelteKit context
+let databaseUrl: string;
+if (process.env.NODE_ENV === 'production') {
+    databaseUrl = process.env.DATABASE_URL!;
+} else {
+    config();
+    databaseUrl = process.env.DATABASE_URL!;
+}
 
-const client = postgres(env.DATABASE_URL);
+if (!databaseUrl) throw new Error('DATABASE_URL is not set');
 
-export const db = drizzle(client, { schema });
+console.log('Initializing database connections...');
+
+// Create a postgres client for migrations and seeding
+export const migrationClient = postgres(databaseUrl, { max: 1 });
+
+// Create a postgres client for the application with prepared statements
+export const client = postgres(databaseUrl, {
+    prepare: true,
+    max: 20,
+    onnotice: (notice) => {
+        console.log('Database notice:', notice);
+    },
+    debug: (connection, query, params, types) => {
+        console.log('Database query:', {
+            query,
+            params,
+            types
+        });
+    }
+});
+
+// Initialize drizzle with schema and relations
+export const db = drizzle(client, { 
+    schema,
+    logger: true
+});
+
+console.log('Database connections initialized');

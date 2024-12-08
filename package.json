@@ -37,6 +37,7 @@
     "autoprefixer": "^10.4.20",
     "bits-ui": "^0.21.16",
     "clsx": "^2.1.1",
+    "dotenv": "^16.4.7",
     "drizzle-kit": "^0.29.1",
     "eslint": "^9.7.0",
     "eslint-config-prettier": "^9.1.0",
@@ -67,6 +68,7 @@
     "drizzle-orm": "^0.37.0",
     "drizzle-seed": "^0.1.2",
     "lexorank": "^1.0.5",
+    "lucide-svelte": "^0.468.0",
     "postgres": "^3.4.4",
     "svelte-dnd-action": "^0.9.52",
     "tsx": "^4.19.2"
