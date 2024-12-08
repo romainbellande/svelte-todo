@@ -15,7 +15,8 @@ export const user = pgTable('user', {
 
 export const userRelations = relations(user, ({ many }) => ({
     boards: many(board),
-    assignedCards: many(card)
+    assignedCards: many(card),
+    assignedItems: many(item)
 }));
 
 export const session = pgTable("session", {
@@ -76,8 +77,26 @@ export const cardRelations = relations(card, ({ one }) => ({
     })
 }));
 
+export const item = pgTable('item', {
+    id,
+    name: text('name').notNull(),
+    reference: text('reference').notNull(),
+    assigneeId: text('assignee_id').references(() => user.id),
+    assignedAt: timestamp('assigned_at', { withTimezone: true, mode: 'date' }),
+    createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' }).defaultNow().notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'date' }).defaultNow().notNull()
+});
+
+export const itemRelations = relations(item, ({ one }) => ({
+    assignee: one(user, {
+        fields: [item.assigneeId],
+        references: [user.id],
+    })
+}));
+
 export type Session = typeof session.$inferSelect;
 export type User = typeof user.$inferSelect;
 export type Board = typeof board.$inferSelect;
 export type List = typeof list.$inferSelect;
 export type Card = typeof card.$inferSelect;
+export type Item = typeof item.$inferSelect;

@@ -1,7 +1,7 @@
 <script lang="ts">
     import SidenavTop from "./sidenav-top.svelte";
     import SidenavItem from "./sidenav-item.svelte";
-    import { Home, LayoutDashboard } from "lucide-svelte";
+    import { Home, LayoutDashboard, Package } from "lucide-svelte";
 </script>
 
 <aside class="fixed inset-y-0 left-0 z-50 hidden w-64 transform bg-white shadow-lg transition-transform duration-300 ease-in-out md:block">
@@ -15,6 +15,10 @@
             <SidenavItem href="/boards">
                 <LayoutDashboard class="mr-3 h-5 w-5" />
                 Boards
+            </SidenavItem>
+            <SidenavItem href="/inventory">
+                <Package class="mr-3 h-5 w-5" />
+                Inventory
             </SidenavItem>
         </nav>
     </div>
