@@ -13,9 +13,10 @@
 
     const { data }: Props = $props();
     const isNew = $derived($page.params.id === 'new');
-    
+
     const form = superForm(data.form)
     const { form: formData, enhance, errors } = form
+    const assignee = $derived(() => $formData.assigneeId ? { label: data.users.find(u => u.id === $formData.assigneeId)?.name, value: $formData.assigneeId } : undefined)
 </script>
 
 <div class="container mx-auto py-6">
@@ -25,12 +26,12 @@
         <form method="POST" action="?/save" class="space-y-4" use:enhance>
             <FormField {form} name="name">
                 <div class="space-y-2">
-                    <FormControl>
+                    <FormControl let:attrs>
                         <FormLabel for="name">Name</FormLabel>
-                        <Input 
-                            id="name" 
-                            name="name" 
-                            bind:value={$formData.name} 
+                        <Input
+                            id="name"
+                            name="name"
+                            bind:value={$formData.name}
                             aria-invalid={$errors.name ? 'true' : undefined}
                         />
                     </FormControl>
@@ -44,9 +45,9 @@
                 <div class="space-y-2">
                     <FormControl>
                         <FormLabel for="reference">Reference</FormLabel>
-                        <Input 
-                            id="reference" 
-                            name="reference" 
+                        <Input
+                            id="reference"
+                            name="reference"
                             bind:value={$formData.reference}
                             aria-invalid={$errors.reference ? 'true' : undefined}
                         />
@@ -59,20 +60,32 @@
 
             <FormField {form} name="assigneeId">
                 <div class="space-y-2">
-                    <FormControl>
+                    <FormControl let:attrs>
                         <FormLabel for="assignee">Assignee</FormLabel>
-                        <Select name="assigneeId">
-                            <SelectTrigger>
+                        <Select
+                            name="assigneeId"
+                            selected={assignee()}
+                            onSelectedChange={(data) => {
+                                if (data) {
+                                    $formData.assigneeId = data.value
+                                }
+                            }}
+                        >
+                            <SelectTrigger {...attrs}>
                                 <SelectValue placeholder="Select an assignee" />
                             </SelectTrigger>
                             <SelectContent>
                                 <SelectItem value="">None</SelectItem>
                                 {#each data.users as user}
-                                    <SelectItem value={user.id}>{user.name}</SelectItem>
+                                    <SelectItem value={user.id} label={user.name} />
                                 {/each}
                             </SelectContent>
                         </Select>
+                        <input hidden bind:value={$formData.assigneeId} name={attrs.name} />
                     </FormControl>
+                    {#if $errors.assigneeId}
+                        <p class="text-sm text-red-500">{$errors.assigneeId}</p>
+                    {/if}
                 </div>
             </FormField>
 

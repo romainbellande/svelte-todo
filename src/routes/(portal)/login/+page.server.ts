@@ -51,7 +51,7 @@ export const actions: Actions = {
 		const session = await auth.createSession(sessionToken, existingUser.id);
 		auth.setSessionTokenCookie(event, sessionToken, session.expiresAt);
 
-		return redirect(302, '/demo/lucia');
+		return redirect(302, '/');
 	},
 	register: async (event) => {
 		const formData = await event.request.formData();
@@ -75,12 +75,12 @@ export const actions: Actions = {
 		});
 
 		try {
-			await db.insert(table.user).values({ 
-				id: userId, 
-				email, 
+			await db.insert(table.user).values({
+				id: userId,
+				email,
 				passwordHash,
-				firstname: 'User', 
-				lastname: userId 
+				firstname: 'User',
+				lastname: userId
 			});
 
 			const sessionToken = auth.generateSessionToken();

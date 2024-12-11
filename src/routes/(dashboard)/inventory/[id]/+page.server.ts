@@ -62,24 +62,39 @@ export const load: PageServerLoad = async ({ params }) => {
 export const actions: Actions = {
     async save({ request, params }) {
         const form = await superValidate(request, zod(inventorySchema));
-        
+
         if (!form.valid) {
             return fail(400, { form });
         }
+
+        const assigneeId = form.data.assigneeId && form.data.assigneeId.trim() !== '' ? form.data.assigneeId : null;
+        const assignedAt = assigneeId ? new Date() : null;
+
+        console.log({
+            assigneeId,
+            assignedAt
+        })
 
         if (params.id === 'new') {
             await db.insert(item).values({
                 name: form.data.name,
                 reference: form.data.reference,
-                assigneeId: form.data.assigneeId || null,
-                assignedAt: form.data.assigneeId ? new Date() : null
+                assigneeId,
+                assignedAt
             });
         } else {
+            const currentItem = await db.query.item.findFirst({
+                where: eq(item.id, params.id)
+            });
+
+            const assignedAtValue = currentItem?.assigneeId !== assigneeId ? assignedAt : currentItem?.assignedAt;
+
             await db.update(item)
                 .set({
                     name: form.data.name,
                     reference: form.data.reference,
-                    assigneeId: form.data.assigneeId || null,
+                    assigneeId,
+                    assignedAt: assignedAtValue,
                     updatedAt: new Date()
                 })
                 .where(eq(item.id, params.id));
