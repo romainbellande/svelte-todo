@@ -56,7 +56,6 @@ export const load: PageServerLoad = async ({ params }) => {
 		reference: existingItem.reference,
 		name: existingItem.name,
 		assigneeId: existingItem.assigneeId || undefined,
-		billingFile: undefined
 	};
 
 	const form = await superValidate(formData, zod(inventorySchema));
@@ -149,13 +148,37 @@ export const actions: Actions = {
 		}
 	},
 
-	delete: async ({ params }) => {
-		const [existingItem] = await db.delete(item).where(eq(item.id, params.id)).returning();
+	archive: async ({ params }) => {
+		const [existingItem] = await db
+			.update(item)
+			.set({
+				archivedAt: new Date(),
+				updatedAt: new Date()
+			})
+			.where(eq(item.id, params.id))
+			.returning();
 
 		if (!existingItem) {
 			throw error(404, 'Item not found');
 		}
 
 		throw redirect(303, '/inventory');
+	},
+
+	restore: async ({ params }) => {
+		const [existingItem] = await db
+			.update(item)
+			.set({
+				archivedAt: null,
+				updatedAt: new Date()
+			})
+			.where(eq(item.id, params.id))
+			.returning();
+
+		if (!existingItem) {
+			throw error(404, 'Item not found');
+		}
+
+		throw redirect(303, '/inventory/archived');
 	}
 };

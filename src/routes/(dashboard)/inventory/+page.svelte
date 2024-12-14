@@ -56,7 +56,14 @@
 </script>
 
 <div class="container mx-auto py-10">
-	<div class="flex items-center justify-between mb-6">
+	<div class="flex justify-between">
+		<h1 class="text-4xl font-bold">Inventory</h1>
+		<div class="flex gap-4">
+			<Button href="/inventory/archived" variant="outline">View Archived</Button>
+			<Button href="/inventory/new">New Item</Button>
+		</div>
+	</div>
+	<div class="flex items-center justify-between mb-6 mt-6">
 		<div class="flex items-center gap-2 relative w-[300px]">
 			<Input
 				type="text"
@@ -67,10 +74,6 @@
 			/>
 			<Search class="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 transform text-gray-500" />
 		</div>
-		<Button href="/inventory/new">
-			<Plus class="mr-2 h-4 w-4" />
-			New Item
-		</Button>
 	</div>
 
 	<div class="rounded-lg bg-white shadow">
@@ -112,14 +115,14 @@
 							<TableCell>
 								<div class="flex gap-2">
 									<Button variant="ghost" size="sm" href="/inventory/{item.id}">Edit</Button>
-									<form action="/inventory/{item.id}?/delete" method="POST">
+									<form action="/inventory/{item.id}?/archive" method="POST">
 										<Button
 											variant="ghost"
 											size="sm"
 											type="submit"
 											class="text-red-600 hover:text-red-700"
 										>
-											Delete
+											Archive
 										</Button>
 									</form>
 								</div>
