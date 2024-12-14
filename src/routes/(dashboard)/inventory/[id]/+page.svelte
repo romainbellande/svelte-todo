@@ -3,15 +3,10 @@
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
 	import { FormField, FormControl, FormLabel } from '$lib/components/ui/form';
-	import {
-		Select,
-		SelectContent,
-		SelectItem,
-		SelectTrigger,
-		SelectValue
-	} from '$lib/components/ui/select';
+	import { Select, SelectContent, SelectItem, SelectTrigger } from '$lib/components/ui/select';
 	import type { PageData } from './$types';
 	import { superForm } from 'sveltekit-superforms/client';
+	import FormFieldErrors from '@/components/ui/form/form-field-errors.svelte';
 
 	type Props = {
 		data: PageData;
@@ -39,31 +34,32 @@
 		<form method="POST" action="?/save" class="space-y-4" use:enhance>
 			<FormField {form} name="name">
 				<div class="space-y-2">
-					<FormControl let:attrs>
-						<FormLabel for="name">Name</FormLabel>
-						<Input
-							{...attrs}
-							name="name"
-							bind:value={$formData.name}
-							aria-invalid={$errors.name ? 'true' : undefined}
-						/>
+					<FormControl>
+						{#snippet children({ props })}
+							<FormLabel for="name">Name</FormLabel>
+							<Input
+								type="name"
+								name={props.name}
+								bind:value={$formData.name}
+								aria-invalid={$errors.name ? 'true' : undefined}
+							/>
+						{/snippet}
 					</FormControl>
-					{#if $errors.name}
-						<p class="text-sm text-red-500">{$errors.name}</p>
-					{/if}
+					<FormFieldErrors />
 				</div>
 			</FormField>
 
 			<FormField {form} name="reference">
 				<div class="space-y-2">
-					<FormControl let:attrs>
-						<FormLabel for="reference">Reference</FormLabel>
-						<Input
-							{...attrs}
-							name="reference"
-							bind:value={$formData.reference}
-							aria-invalid={$errors.reference ? 'true' : undefined}
-						/>
+					<FormControl>
+						{#snippet children({ props })}
+							<FormLabel for="reference">Reference</FormLabel>
+							<Input
+								type="reference"
+								name={props.name}
+								bind:value={$formData.reference}
+							/>
+						{/snippet}
 					</FormControl>
 					{#if $errors.reference}
 						<p class="text-sm text-red-500">{$errors.reference}</p>
@@ -73,32 +69,29 @@
 
 			<FormField {form} name="assigneeId">
 				<div class="space-y-2">
-					<FormControl let:attrs>
-						<FormLabel for="assignee">Assignee</FormLabel>
-						<Select
-							name="assigneeId"
-							selected={assignee()}
-							onSelectedChange={(data) => {
-								if (data) {
-									$formData.assigneeId = data.value;
-								}
-							}}
-						>
-							<SelectTrigger {...attrs}>
-								<SelectValue placeholder="Select an assignee" />
-							</SelectTrigger>
-							<SelectContent>
-								<SelectItem value="">None</SelectItem>
-								{#each data.users as user}
-									<SelectItem value={user.id} label={user.name} />
-								{/each}
-							</SelectContent>
-						</Select>
-						<input hidden bind:value={$formData.assigneeId} name={attrs.name} />
+					<FormControl>
+						{#snippet children({ props })}
+							<FormLabel for="assignee">Assignee</FormLabel>
+							<Select
+								type="single"
+								name={props.name}
+								bind:value={$formData.assigneeId}
+							>
+								<SelectTrigger {...props}>
+									{ assignee()
+										? assignee()?.label
+										: 'Select assignee' }
+								</SelectTrigger>
+								<SelectContent>
+									<SelectItem value="">None</SelectItem>
+									{#each data.users as user}
+										<SelectItem value={user.id} label={user.name} />
+									{/each}
+								</SelectContent>
+							</Select>
+						{/snippet}
 					</FormControl>
-					{#if $errors.assigneeId}
-						<p class="text-sm text-red-500">{$errors.assigneeId}</p>
-					{/if}
+					<FormFieldErrors />
 				</div>
 			</FormField>
 

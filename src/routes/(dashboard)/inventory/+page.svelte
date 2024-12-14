@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Plus, Search } from 'lucide-svelte';
+	import { Plus, Search, ChevronLeft, ChevronRight } from 'lucide-svelte';
 	import { Button } from '$lib/components/ui/button';
 	import {
 		Table,
@@ -13,11 +13,26 @@
 	import type { PageData } from './$types';
 	import { Input } from '$lib/components/ui/input';
 	import { goto } from '$app/navigation';
+	import {
+		Pagination,
+		PaginationContent,
+		PaginationEllipsis,
+		PaginationItem,
+		PaginationLink,
+		PaginationNextButton,
+		PaginationPrevButton,
+	} from '$lib/components/ui/pagination';
 
-	export let data: PageData;
+	type Props = {
+		data: PageData;
+	};
 
-	let searchTerm = '';
+	const { data }: Props = $props();
+	let searchTerm = $state('');
 	let searchTimeout: NodeJS.Timeout;
+	const count = $derived(data.pagination.totalItems);
+	const perPage = $derived(data.pagination.perPage); // Number of items to display per page
+	const siblingCount = 1;
 
 	function handleSearch() {
 		clearTimeout(searchTimeout);
@@ -28,28 +43,34 @@
 			} else {
 				url.searchParams.delete('search');
 			}
+			url.searchParams.set('page', '1');
 			goto(url.toString());
 		}, 300);
 	}
+
+	function handlePageChange(page: number) {
+		const url = new URL(window.location.href);
+		url.searchParams.set('page', page.toString());
+		goto(url.toString());
+	}
 </script>
 
-<div class="container mx-auto py-6">
-	<div class="mb-6 flex items-center justify-between">
-		<h1 class="text-3xl font-bold">Inventory</h1>
+<div class="container mx-auto py-10">
+	<div class="flex items-center justify-between mb-6">
+		<div class="flex items-center gap-2 relative w-[300px]">
+			<Input
+				type="text"
+				placeholder="Search by name, reference or assignee..."
+				bind:value={searchTerm}
+				oninput={handleSearch}
+				class="pl-3 pr-10"
+			/>
+			<Search class="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 transform text-gray-500" />
+		</div>
 		<Button href="/inventory/new">
 			<Plus class="mr-2 h-4 w-4" />
 			New Item
 		</Button>
-	</div>
-
-	<div class="relative mb-4">
-		<Input
-			type="text"
-			placeholder="Search by name, reference or assignee..."
-			bind:value={searchTerm}
-			on:input={handleSearch}
-		/>
-		<Search class="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 transform text-gray-500" />
 	</div>
 
 	<div class="rounded-lg bg-white shadow">
@@ -71,9 +92,22 @@
 				{:else}
 					{#each data.items as item}
 						<TableRow>
-							<TableCell>{item.name}</TableCell>
+							<TableCell>
+								<a
+									href="/inventory/{item.id}"
+									class="text-blue-600 hover:underline"
+								>
+									{item.name}
+								</a>
+							</TableCell>
 							<TableCell>{item.reference}</TableCell>
-							<TableCell>{item.assignee?.firstname} {item.assignee?.lastname ?? '-'}</TableCell>
+							<TableCell>
+								{#if item.assignee}
+									{item.assignee.firstname} {item.assignee.lastname}
+								{:else}
+									<span class="text-gray-400">Unassigned</span>
+								{/if}
+							</TableCell>
 							<TableCell>{item.assignedAt ? formatDate(item.assignedAt) : '-'}</TableCell>
 							<TableCell>
 								<div class="flex gap-2">
@@ -96,4 +130,40 @@
 			</TableBody>
 		</Table>
 	</div>
+	{#if data.items.length > 0}
+		<div class="mt-4">
+			<Pagination {count} {perPage} {siblingCount}>
+				{#snippet children({ pages, currentPage })}
+					<PaginationContent>
+						<PaginationItem>
+							<PaginationPrevButton>
+								<ChevronLeft class="size-4" />
+								<span class="hidden sm:block">Previous</span>
+							</PaginationPrevButton>
+						</PaginationItem>
+						{#each pages as page (page.key)}
+						{#if page.type === 'ellipsis'}
+							<PaginationEllipsis />
+						{:else}
+							<PaginationItem>
+								<PaginationLink
+									{page}
+									isActive={currentPage === page.value}
+								>
+									{page.value}
+								</PaginationLink>
+							</PaginationItem>
+						{/if}
+						{/each}
+						<PaginationItem>
+							<PaginationNextButton>
+								<span class="hidden sm:block">Next</span>
+								<ChevronRight class="size-4" />
+							</PaginationNextButton>
+						</PaginationItem>
+					</PaginationContent>
+				{/snippet}
+			</Pagination>
+		</div>
+	{/if}
 </div>

@@ -13,7 +13,7 @@
 		<h1 class="text-2xl font-bold">My Boards</h1>
 		<button
 			class="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
-			on:click={() => (showNewBoardInput = true)}
+			onclick={() => (showNewBoardInput = true)}
 		>
 			Create Board
 		</button>
@@ -33,7 +33,7 @@
 					<button
 						type="button"
 						class="px-4 py-2 text-gray-600 hover:text-gray-800"
-						on:click={() => {
+						onclick={() => {
 							showNewBoardInput = false;
 							newBoardName = '';
 						}}
