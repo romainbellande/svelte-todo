@@ -7,6 +7,7 @@
 	import type { PageData } from './$types';
 	import { superForm } from 'sveltekit-superforms/client';
 	import FormFieldErrors from '@/components/ui/form/form-field-errors.svelte';
+	import BillingForm from './billing-form.svelte';
 
 	type Props = {
 		data: PageData;
@@ -100,5 +101,9 @@
 				<Button type="submit">{isNew ? 'Create' : 'Save'}</Button>
 			</div>
 		</form>
+
+		{#if !isNew}
+			<BillingForm {data} />
+		{/if}
 	</div>
 </div>

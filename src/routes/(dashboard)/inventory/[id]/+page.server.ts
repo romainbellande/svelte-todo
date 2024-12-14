@@ -4,8 +4,11 @@ import { error, fail, redirect } from '@sveltejs/kit';
 import { eq } from 'drizzle-orm';
 import type { Actions, PageServerLoad } from './$types';
 import { inventorySchema } from './schema';
+import { billingSchema } from './billing-schema';
 import { superValidate } from 'sveltekit-superforms/server';
 import { zod } from 'sveltekit-superforms/adapters';
+import { uploadFile } from '$lib/server/s3';
+import { env } from '@/server/env';
 
 export const load: PageServerLoad = async ({ params }) => {
 	if (params.id === 'new') {
@@ -18,9 +21,11 @@ export const load: PageServerLoad = async ({ params }) => {
 		});
 
 		const form = await superValidate(zod(inventorySchema));
+		const billingForm = await superValidate(zod(billingSchema));
 
 		return {
 			form,
+			billingForm,
 			users: users.map((u) => ({
 				id: u.id,
 				name: `${u.firstname} ${u.lastname}`
@@ -47,10 +52,19 @@ export const load: PageServerLoad = async ({ params }) => {
 		}
 	});
 
-	const form = await superValidate(existingItem, zod(inventorySchema));
+	const formData = {
+		reference: existingItem.reference,
+		name: existingItem.name,
+		assigneeId: existingItem.assigneeId || undefined,
+		billingFile: undefined
+	};
+
+	const form = await superValidate(formData, zod(inventorySchema));
+	const billingForm = await superValidate(zod(billingSchema));
 
 	return {
 		form,
+		billingForm,
 		item: existingItem,
 		users: users.map((u) => ({
 			id: u.id,
@@ -61,27 +75,29 @@ export const load: PageServerLoad = async ({ params }) => {
 
 export const actions: Actions = {
 	async save({ request, params }) {
-		const form = await superValidate(request, zod(inventorySchema));
+		const formData = await superValidate(request, zod(inventorySchema));
 
-		if (!form.valid) {
-			return fail(400, { form });
+		if (!formData.valid) {
+			return fail(400, {
+				form: formData
+			});
 		}
 
-		const assigneeId =
-			form.data.assigneeId && form.data.assigneeId.trim() !== '' ? form.data.assigneeId : null;
-		const assignedAt = assigneeId ? new Date() : null;
+		let billingFileUrl: string | undefined;
 
-		console.log({
-			assigneeId,
-			assignedAt
-		});
+		const { data } = formData;
+
+		const assigneeId =
+			data.assigneeId && data.assigneeId.trim() !== '' ? data.assigneeId : null;
+		const assignedAt = assigneeId ? new Date() : null;
 
 		if (params.id === 'new') {
 			await db.insert(item).values({
-				name: form.data.name,
-				reference: form.data.reference,
+				name: data.name,
+				reference: data.reference,
 				assigneeId,
-				assignedAt
+				assignedAt,
+				billingFileUrl
 			});
 		} else {
 			const currentItem = await db.query.item.findFirst({
@@ -94,16 +110,43 @@ export const actions: Actions = {
 			await db
 				.update(item)
 				.set({
-					name: form.data.name,
-					reference: form.data.reference,
+					name: data.name,
+					reference: data.reference,
 					assigneeId,
 					assignedAt: assignedAtValue,
+					billingFileUrl,
 					updatedAt: new Date()
 				})
 				.where(eq(item.id, params.id));
 		}
 
 		throw redirect(303, '/inventory');
+	},
+
+	async uploadBilling({ request, params }) {
+		const formData = await request.formData();
+		const billingFile = formData.get('billingFile') as File;
+		const form = await superValidate(zod(billingSchema));
+
+		if (!billingFile || billingFile.size === 0) {
+			form.errors._errors = ['No file provided'];
+			return fail(400, { billingForm: form });
+		}
+
+		try {
+			const fileKey = `${params.id}/${billingFile.name}`;
+			const billingFileUrl = await uploadFile(billingFile, fileKey, env.s3.inventoryBucketName);
+
+			await db.update(item)
+				.set({ billingFileUrl })
+				.where(eq(item.id, params.id));
+
+			return { billingForm: form };
+		} catch (error) {
+			console.error('Error uploading file:', error);
+			form.errors._errors = ['Failed to upload file'];
+			return fail(500, { billingForm: form });
+		}
 	},
 
 	delete: async ({ params }) => {
