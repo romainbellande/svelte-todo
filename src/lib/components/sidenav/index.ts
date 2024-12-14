@@ -1,1 +1,1 @@
-export { default as Sidenav } from './sidenav.svelte'
+export { default as Sidenav } from './sidenav.svelte';

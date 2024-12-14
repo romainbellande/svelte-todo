@@ -27,10 +27,7 @@ export const actions: Actions = {
 			return fail(400, { message: 'Invalid password' });
 		}
 
-		const results = await db
-			.select()
-			.from(table.user)
-			.where(eq(table.user.username, username));
+		const results = await db.select().from(table.user).where(eq(table.user.username, username));
 
 		const existingUser = results.at(0);
 		if (!existingUser) {
@@ -41,7 +38,7 @@ export const actions: Actions = {
 			memoryCost: 19456,
 			timeCost: 2,
 			outputLen: 32,
-			parallelism: 1,
+			parallelism: 1
 		});
 		if (!validPassword) {
 			return fail(400, { message: 'Incorrect username or password' });
@@ -71,7 +68,7 @@ export const actions: Actions = {
 			memoryCost: 19456,
 			timeCost: 2,
 			outputLen: 32,
-			parallelism: 1,
+			parallelism: 1
 		});
 
 		try {
@@ -80,12 +77,12 @@ export const actions: Actions = {
 			const sessionToken = auth.generateSessionToken();
 			const session = await auth.createSession(sessionToken, userId);
 			auth.setSessionTokenCookie(event, sessionToken, session.expiresAt);
-		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+			// eslint-disable-next-line @typescript-eslint/no-unused-vars
 		} catch (e) {
 			return fail(500, { message: 'An error has occurred' });
 		}
 		return redirect(302, '/demo/lucia');
-	},
+	}
 };
 
 function generateUserId() {
@@ -105,9 +102,5 @@ function validateUsername(username: unknown): username is string {
 }
 
 function validatePassword(password: unknown): password is string {
-	return (
-		typeof password === 'string' &&
-		password.length >= 6 &&
-		password.length <= 255
-	);
+	return typeof password === 'string' && password.length >= 6 && password.length <= 255;
 }
