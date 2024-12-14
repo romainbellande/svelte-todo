@@ -3,10 +3,15 @@
 	import { invalidateAll } from '$app/navigation';
 	import type { PageData } from './$types';
 	import { dndzone } from 'svelte-dnd-action';
-
-	const data: PageData = $props();
+	type Props = {
+		data: PageData;
+	}
+	const { data }: Props = $props();
 	type Card = (typeof lists)[0]['cards'][0];
-	let lists = $state(data.board.lists.sort((a, b) => a.order - b.order));
+	let lists = $state<(typeof data.board.lists)>([]);
+	$effect(() => {
+		lists = data.board.lists.sort((a, b) => a.order - b.order);
+	});
 	let newListName = $state('');
 	let showNewListInput = $state(false);
 	let newCardTitle = $state('');
