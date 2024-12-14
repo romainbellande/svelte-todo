@@ -8,6 +8,7 @@
 	import { superForm } from 'sveltekit-superforms/client';
 	import FormFieldErrors from '@/components/ui/form/form-field-errors.svelte';
 	import BillingForm from './billing-form.svelte';
+	import BackButton from '$lib/components/ui/back-button.svelte';
 
 	type Props = {
 		data: PageData;
@@ -29,7 +30,10 @@
 </script>
 
 <div class="container mx-auto py-6">
-	<h1 class="mb-6 text-3xl font-bold">{isNew ? 'New Item' : 'Edit Item'}</h1>
+	<div class="mb-6 flex items-center gap-4">
+		<BackButton href="/inventory" />
+		<h1 class="text-3xl font-bold">{isNew ? 'New Item' : 'Edit Item'}</h1>
+	</div>
 
 	<div class="max-w-xl rounded-lg bg-white p-6 shadow">
 		<form method="POST" action="?/save" class="space-y-4" use:enhance>

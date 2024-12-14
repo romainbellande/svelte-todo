@@ -91,7 +91,7 @@ export const item = pgTable('item', {
 	reference: text('reference').notNull(),
 	assigneeId: text('assignee_id').references(() => user.id),
 	assignedAt: timestamp('assigned_at', { withTimezone: true, mode: 'date' }),
-	billingFileUrl: text('billing_file_url'),
+	billingFileKey: text('billing_file_key'),
 	createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' }).defaultNow().notNull(),
 	updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'date' }).defaultNow().notNull()
 });

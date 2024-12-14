@@ -1,4 +1,4 @@
-import { S3Client } from '@aws-sdk/client-s3';
+import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3';
 import { Upload } from '@aws-sdk/lib-storage';
 import { env } from '$lib/server/env';
 
@@ -15,6 +15,14 @@ export async function uploadFile(file: File, key: string, bucket: string) {
 		}
 	});
 
-	const result = await upload.done();
-	return result.Location;
+	return upload.done();
+}
+
+export async function getObject(key: string, bucket: string) {
+	const command = new GetObjectCommand({
+		Bucket: bucket,
+		Key: key
+	});
+
+	return s3Client.send(command);
 }

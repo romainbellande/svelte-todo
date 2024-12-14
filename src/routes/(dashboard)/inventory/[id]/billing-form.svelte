@@ -4,18 +4,33 @@
 	import { FormField, FormControl, FormLabel, FormFieldErrors } from '$lib/components/ui/form';
 	import { superForm } from 'sveltekit-superforms/client';
 	import type { PageData } from './$types';
+	import { Download } from 'lucide-svelte';
+	import { page } from '$app/stores';
 
 	type Props = {
 		data: PageData;
 	};
 
 	const { data }: Props = $props();
+	const billingFileKey = $derived(data.item?.billingFileKey);
 	const form = superForm(data.billingForm);
 	const { enhance, errors } = form;
+
 </script>
 
 <div class="mt-6 border-t pt-6">
-	<h2 class="mb-4 text-xl font-semibold">Billing Document</h2>
+	<div class="mb-4 flex items-center justify-between">
+		<h2 class="text-xl font-semibold">Billing Document</h2>
+		{#if billingFileKey}
+			<a href="/inventory/{$page.params.id}/download-billing" target="_blank">
+				<Button variant="outline" class="gap-2">
+					<Download class="h-4 w-4" />
+					Download
+				</Button>
+			</a>
+		{/if}
+	</div>
+
 	<form
 		method="POST"
 		action="?/uploadBilling"

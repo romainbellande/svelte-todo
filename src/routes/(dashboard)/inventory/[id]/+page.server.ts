@@ -83,7 +83,7 @@ export const actions: Actions = {
 			});
 		}
 
-		let billingFileUrl: string | undefined;
+		let billingFileKey: string | undefined;
 
 		const { data } = formData;
 
@@ -97,7 +97,7 @@ export const actions: Actions = {
 				reference: data.reference,
 				assigneeId,
 				assignedAt,
-				billingFileUrl
+				billingFileKey
 			});
 		} else {
 			const currentItem = await db.query.item.findFirst({
@@ -114,7 +114,7 @@ export const actions: Actions = {
 					reference: data.reference,
 					assigneeId,
 					assignedAt: assignedAtValue,
-					billingFileUrl,
+					billingFileKey,
 					updatedAt: new Date()
 				})
 				.where(eq(item.id, params.id));
@@ -135,10 +135,10 @@ export const actions: Actions = {
 
 		try {
 			const fileKey = `${params.id}/${billingFile.name}`;
-			const billingFileUrl = await uploadFile(billingFile, fileKey, env.s3.inventoryBucketName);
+			const { Key } = await uploadFile(billingFile, fileKey, env.s3.inventoryBucketName);
 
 			await db.update(item)
-				.set({ billingFileUrl })
+				.set({ billingFileKey: Key })
 				.where(eq(item.id, params.id));
 
 			return { billingForm: form };
