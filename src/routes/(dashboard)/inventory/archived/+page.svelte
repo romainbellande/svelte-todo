@@ -12,6 +12,7 @@
 		TableRow
 	} from '$lib/components/ui/table';
 	import type { PageData } from './$types';
+	import * as m from '$lib/paraglide/messages';
 
 	type Props = {
 		data: PageData;
@@ -20,14 +21,14 @@
 	const { data }: Props = $props();
 
 	$effect(() => {
-		document.title = 'Archived Inventory';
+		document.title = m.inventory_archived_title();
 	});
 </script>
 
 <div class="container py-8 space-y-8">
 	<div class="flex justify-between">
-		<h1 class="text-4xl font-bold">Archived Inventory</h1>
-		<Button href="/inventory" variant="outline">Back to Inventory</Button>
+		<h1 class="text-4xl font-bold">{m.inventory_archived_title()}</h1>
+		<Button href="/inventory" variant="outline">{m.inventory_archived_back()}</Button>
 	</div>
 
 	<div class="flex items-center gap-4">
@@ -35,7 +36,7 @@
 			<Input
 				type="search"
 				name="search"
-				placeholder="Search by name, reference, or assignee..."
+				placeholder={m.inventory_search_placeholder()}
 				value={$page.url.searchParams.get('search') ?? ''}
 			/>
 		</form>
@@ -45,11 +46,11 @@
 		<Table>
 			<TableHeader>
 				<TableRow>
-					<TableHead>Reference</TableHead>
-					<TableHead>Name</TableHead>
-					<TableHead>Assignee</TableHead>
-					<TableHead>Archived At</TableHead>
-					<TableHead class="w-[100px]">Actions</TableHead>
+					<TableHead>{m.inventory_table_reference()}</TableHead>
+					<TableHead>{m.inventory_table_name()}</TableHead>
+					<TableHead>{m.inventory_table_assignee()}</TableHead>
+					<TableHead>{m.inventory_table_archived_at()}</TableHead>
+					<TableHead class="w-[100px]">{m.inventory_table_actions()}</TableHead>
 				</TableRow>
 			</TableHeader>
 			<TableBody>
@@ -78,7 +79,7 @@
 										type="submit"
 										class="text-green-600 hover:text-green-700"
 									>
-										Restore
+										{m.inventory_action_restore()}
 									</Button>
 								</form>
 							</div>
@@ -90,6 +91,6 @@
 	</div>
 
 	<div class="text-sm text-muted-foreground">
-		{data.totalItems} items found
+		{m.inventory_items_count({ count: data.totalItems })}
 	</div>
 </div>

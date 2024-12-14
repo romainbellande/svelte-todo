@@ -1,4 +1,4 @@
 1. When you manipulate svelte files, you must use svelte 5 only
 2. When you manipulate ts files, you should use typescript 5.0.0
 3. When you manipulate svelte or ts svelte, you must take into account current eslint and prettier rules from eslint.config.js file.
-4. When I send you "commit" instruction, you help me create a conventional commit about current diff by running automatically the git commands you need.
+4. When I send you "commit" instruction, you help me create a conventional commit about current diff by running automatically the git status, git diff and git diff --staged commands.

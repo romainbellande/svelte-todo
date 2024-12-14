@@ -22,6 +22,7 @@
 		PaginationNextButton,
 		PaginationPrevButton,
 	} from '$lib/components/ui/pagination';
+	import * as m from '$lib/paraglide/messages';
 
 	type Props = {
 		data: PageData;
@@ -57,17 +58,21 @@
 
 <div class="container mx-auto py-10">
 	<div class="flex justify-between">
-		<h1 class="text-4xl font-bold">Inventory</h1>
+		<h1 class="text-4xl font-bold">{m.inventory_title()}</h1>
 		<div class="flex gap-4">
-			<Button href="/inventory/archived" variant="outline">View Archived</Button>
-			<Button href="/inventory/new">New Item</Button>
+			<Button href="/inventory/archived" variant="outline">{m.inventory_view_archived()}</Button>
+			<Button href="/inventory/new">
+				<Plus class="mr-2 h-4 w-4" />
+				{m.inventory_new_button()}
+			</Button>
 		</div>
 	</div>
+
 	<div class="flex items-center justify-between mb-6 mt-6">
 		<div class="flex items-center gap-2 relative w-[300px]">
 			<Input
 				type="text"
-				placeholder="Search by name, reference or assignee..."
+				placeholder={m.inventory_search_placeholder()}
 				bind:value={searchTerm}
 				oninput={handleSearch}
 				class="pl-3 pr-10"
@@ -80,17 +85,17 @@
 		<Table>
 			<TableHeader>
 				<TableRow>
-					<TableHead>Name</TableHead>
-					<TableHead>Reference</TableHead>
-					<TableHead>Assignee</TableHead>
-					<TableHead>Assigned At</TableHead>
-					<TableHead class="w-[100px]">Actions</TableHead>
+					<TableHead>{m.inventory_name()}</TableHead>
+					<TableHead>{m.inventory_reference()}</TableHead>
+					<TableHead>{m.inventory_assignee()}</TableHead>
+					<TableHead>{m.inventory_assigned_at()}</TableHead>
+					<TableHead class="w-[100px]">{m.inventory_actions()}</TableHead>
 				</TableRow>
 			</TableHeader>
 			<TableBody>
 				{#if data.items.length === 0}
 					<TableRow>
-						<TableCell colspan={5} class="py-4 text-center">No items found</TableCell>
+						<TableCell colspan={5} class="py-4 text-center">{m.inventory_no_items()}</TableCell>
 					</TableRow>
 				{:else}
 					{#each data.items as item}
@@ -114,7 +119,7 @@
 							<TableCell>{item.assignedAt ? formatDate(item.assignedAt) : '-'}</TableCell>
 							<TableCell>
 								<div class="flex gap-2">
-									<Button variant="ghost" size="sm" href="/inventory/{item.id}">Edit</Button>
+									<Button variant="ghost" size="sm" href="/inventory/{item.id}">{m.inventory_edit()}</Button>
 									<form action="/inventory/{item.id}?/archive" method="POST">
 										<Button
 											variant="ghost"
@@ -122,7 +127,7 @@
 											type="submit"
 											class="text-red-600 hover:text-red-700"
 										>
-											Archive
+											{m.inventory_archive()}
 										</Button>
 									</form>
 								</div>
@@ -141,7 +146,7 @@
 						<PaginationItem>
 							<PaginationPrevButton>
 								<ChevronLeft class="size-4" />
-								<span class="hidden sm:block">Previous</span>
+								<span class="hidden sm:block">{m.pagination_previous()}</span>
 							</PaginationPrevButton>
 						</PaginationItem>
 						{#each pages as page (page.key)}
@@ -160,7 +165,7 @@
 						{/each}
 						<PaginationItem>
 							<PaginationNextButton>
-								<span class="hidden sm:block">Next</span>
+								<span class="hidden sm:block">{m.pagination_next()}</span>
 								<ChevronRight class="size-4" />
 							</PaginationNextButton>
 						</PaginationItem>
