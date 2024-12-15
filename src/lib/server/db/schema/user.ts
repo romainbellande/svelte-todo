@@ -1,4 +1,4 @@
-import { pgTable, text } from 'drizzle-orm/pg-core';
+import { pgTable, text, boolean } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
 import { id, createdAt, updatedAt } from './common';
 import { board } from './board';
@@ -11,6 +11,7 @@ export const user = pgTable('user', {
 	firstname: text('firstname').notNull(),
 	lastname: text('lastname').notNull(),
 	passwordHash: text('password_hash').notNull(),
+	disabled: boolean('disabled').notNull().default(false),
 	createdAt,
 	updatedAt
 });

@@ -11,10 +11,12 @@
 		TableRow
 	} from '$lib/components/ui/table';
 	import { Input } from '$lib/components/ui/input';
+	import { Switch } from '$lib/components/ui/switch';
 	import * as m from '$lib/paraglide/messages';
 	import { formatDate } from '$lib/utils';
 	import type { PageData } from './$types';
 	import { goto } from '$app/navigation';
+	import { invalidateAll } from '$app/navigation';
 
 	type Props = {
 		data: PageData;
@@ -36,6 +38,26 @@
 			url.searchParams.set('page', '1');
 			goto(url.toString());
 		}, 300);
+	}
+
+	async function toggleUserStatus(userId: string) {
+		try {
+			const formData = new FormData();
+			formData.append('id', userId);
+
+			const response = await fetch('?/toggleStatus', {
+				method: 'POST',
+				body: formData
+			});
+
+			if (!response.ok) {
+				throw new Error('Failed to toggle user status');
+			}
+
+			await invalidateAll();
+		} catch (error) {
+			console.error('Error toggling user status:', error);
+		}
 	}
 
 	$effect(() => {
@@ -70,6 +92,7 @@
 				<TableRow>
 					<TableHead>{m.users_table_name()}</TableHead>
 					<TableHead>{m.users_table_email()}</TableHead>
+					<TableHead>{m.users_table_status()}</TableHead>
 					<TableHead>{m.users_table_created_at()}</TableHead>
 					<TableHead class="w-[100px]">{m.users_table_actions()}</TableHead>
 				</TableRow>
@@ -86,6 +109,13 @@
 								<div class="font-medium">{user.firstname} {user.lastname}</div>
 							</TableCell>
 							<TableCell>{user.email}</TableCell>
+							<TableCell>
+								<Switch
+									checked={!user.disabled}
+									onCheckedChange={() => toggleUserStatus(user.id)}
+									color="secondary"
+								/>
+							</TableCell>
 							<TableCell>{formatDate(user.createdAt)}</TableCell>
 							<TableCell>
 								<div class="flex gap-2">

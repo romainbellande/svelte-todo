@@ -62,5 +62,31 @@ export const actions: Actions = {
 			console.error('Error deleting user:', err);
 			throw error(500, 'Error deleting user');
 		}
+	},
+	toggleStatus: async ({ request }) => {
+		const formData = await request.formData();
+		const id = formData.get('id') as string;
+
+		if (!id) {
+			throw error(400, 'User ID is required');
+		}
+
+		const existingUser = await db.query.user.findFirst({
+			where: eq(user.id, id)
+		});
+
+		if (!existingUser) {
+			throw error(404, 'User not found');
+		}
+
+		await db
+			.update(user)
+			.set({
+				disabled: !existingUser.disabled,
+				updatedAt: new Date()
+			})
+			.where(eq(user.id, id));
+
+		return { success: true };
 	}
 };

@@ -34,6 +34,7 @@
 	"users_table_name": "Name",
 	"users_table_email": "Email",
 	"users_table_role": "Role",
+	"users_table_status": "Status",
 	"users_table_created_at": "Created At",
 	"users_table_actions": "Actions",
 	"users_action_edit": "Edit",
@@ -44,6 +45,8 @@
 	"users_firstname": "First Name",
 	"users_lastname": "Last Name",
 	"users_email": "Email",
+	"users_status_enabled": "Enabled",
+	"users_status_disabled": "Disabled",
 	"common_back": "Back",
 	"common_save": "Save"
 }
