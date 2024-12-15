@@ -18,8 +18,8 @@ async function seedDatabase() {
 			.values([
 				{
 					email: 'admin@example.com',
-					firstname: 'Romain',
-					lastname: 'Bellande',
+					firstname: 'John',
+					lastname: 'Doe',
 					passwordHash,
 					disabled: false,
 					activatedAt: now, // Admin user is activated by default

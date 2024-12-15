@@ -93,6 +93,7 @@
 					<TableHead>{m.users_table_name()}</TableHead>
 					<TableHead>{m.users_table_email()}</TableHead>
 					<TableHead>{m.users_table_status()}</TableHead>
+					<TableHead>{m.users_table_activated_at()}</TableHead>
 					<TableHead>{m.users_table_created_at()}</TableHead>
 					<TableHead class="w-[100px]">{m.users_table_actions()}</TableHead>
 				</TableRow>
@@ -100,7 +101,7 @@
 			<TableBody>
 				{#if data.users.length === 0}
 					<TableRow>
-						<TableCell colspan={5} class="py-4 text-center">{m.users_no_items()}</TableCell>
+						<TableCell colspan={6} class="py-4 text-center">{m.users_no_items()}</TableCell>
 					</TableRow>
 				{:else}
 					{#each data.users as user}
@@ -113,8 +114,14 @@
 								<Switch
 									checked={!user.disabled}
 									onCheckedChange={() => toggleUserStatus(user.id)}
-									color="secondary"
 								/>
+							</TableCell>
+							<TableCell>
+								{#if user.activatedAt}
+									{formatDate(user.activatedAt)}
+								{:else}
+									<span class="text-muted-foreground">-</span>
+								{/if}
 							</TableCell>
 							<TableCell>{formatDate(user.createdAt)}</TableCell>
 							<TableCell>
