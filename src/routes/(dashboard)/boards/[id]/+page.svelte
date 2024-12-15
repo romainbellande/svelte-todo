@@ -234,7 +234,7 @@
 				</div>
 
 				<div
-					class="space-y-2"
+					class="min-h-12 space-y-2"
 					use:dndzone={{
 						items: list.cards,
 						dragDisabled: !!editingCard,
@@ -269,10 +269,13 @@
 									>
 									<select name="assigneeId" class="w-full rounded border px-2 py-1">
 										<option value="">Unassigned</option>
-										{#each data.users as user}
-											<option value={user.id} selected={card.assigneeId === user.id}>
-												{user.firstname}
-												{user.lastname}
+										{#each data.board.users as boardUser}
+											<option
+												value={boardUser.userId}
+												selected={card.assigneeId === boardUser.userId}
+											>
+												{boardUser.user.firstname}
+												{boardUser.user.lastname}
 											</option>
 										{/each}
 									</select>

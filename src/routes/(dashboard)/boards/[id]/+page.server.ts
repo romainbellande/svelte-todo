@@ -1,97 +1,68 @@
 import { error, fail } from '@sveltejs/kit';
 import type { PageServerLoad, Actions } from './$types';
 import { db } from '$lib/server/db';
-import { board, list, card, user } from '$lib/server/db/schema';
+import { board, list, card } from '$lib/server/db/schema';
 import type { Card } from '$lib/server/db/schema';
-import { eq, and, asc, max, inArray } from 'drizzle-orm';
+import { eq, asc, max } from 'drizzle-orm';
 import { LexoRank } from 'lexorank';
 
 export const load: PageServerLoad = async ({ locals, params }) => {
-	console.log('Loading board page with params:', params);
-	console.log('User context:', locals.user);
-
 	if (!locals.user) {
-		console.log('No user found in locals');
 		throw error(401, 'Unauthorized');
 	}
 
 	try {
-		console.log('Attempting to fetch board data...');
-		// First fetch the board
-		const boardData = await db
-			.select()
-			.from(board)
-			.where(and(eq(board.id, params.id), eq(board.userId, locals.user.id)))
-			.execute();
+		// Fetch the board with its lists, cards, and all user relationships
+		const boardData = await db.query.board.findFirst({
+			where: eq(board.id, params.id),
+			with: {
+				lists: {
+					orderBy: asc(list.order),
+					with: {
+						cards: {
+							with: {
+								assignee: true
+							},
+							orderBy: asc(card.position)
+						}
+					}
+				},
+				users: {
+					with: {
+						user: {
+							columns: {
+								id: true,
+								email: true,
+								firstname: true,
+								lastname: true
+							}
+						}
+					}
+				}
+			}
+		});
 
-		if (!boardData || boardData.length === 0) {
-			console.log('Board not found');
+		if (!boardData) {
 			throw error(404, 'Board not found');
 		}
 
-		const currentBoard = boardData[0];
+		// Check if current user has access to the board
+		const currentUserAccess = boardData.users.find((ub) => ub.userId === locals.user?.id);
 
-		// Fetch lists for the board
-		const lists = await db
-			.select()
-			.from(list)
-			.where(eq(list.boardId, currentBoard.id))
-			.orderBy(asc(list.order))
-			.execute();
-
-		// Fetch cards for all lists
-		const cards =
-			lists.length > 0
-				? await db
-						.select({
-							id: card.id,
-							title: card.title,
-							description: card.description,
-							position: card.position,
-							listId: card.listId,
-							assigneeId: card.assigneeId,
-							createdAt: card.createdAt,
-							assignee: user
-						})
-						.from(card)
-						.leftJoin(user, eq(card.assigneeId, user.id))
-						.where(
-							inArray(
-								card.listId,
-								lists.map((l) => l.id)
-							)
-						)
-						.orderBy(asc(card.position))
-						.execute()
-				: [];
-
-		// Get all users that can be assigned
-		const users = await db
-			.select({
-				id: user.id,
-				email: user.email,
-				firstname: user.firstname,
-				lastname: user.lastname
-			})
-			.from(user)
-			.execute();
-
-		// Structure the data
-		const boardWithRelations = {
-			...currentBoard,
-			lists: lists.map((l) => ({
-				...l,
-				cards: cards.filter((c) => c.listId === l.id)
-			}))
-		};
+		if (!currentUserAccess) {
+			throw error(403, 'Access denied');
+		}
 
 		return {
-			board: boardWithRelations,
-			users
+			board: boardData,
+			lists: boardData.lists,
+			boardUsers: boardData.users.map((ub) => ({
+				...ub.user
+			}))
 		};
 	} catch (err) {
-		console.error('Error in board load function:', err);
-		throw err;
+		console.error('Error loading board:', err);
+		throw error(500, 'Failed to load board');
 	}
 };
 
@@ -99,17 +70,6 @@ export const actions: Actions = {
 	createList: async ({ request, locals, params }) => {
 		if (!locals.user) {
 			throw error(401, 'Unauthorized');
-		}
-
-		// Verify board exists and belongs to user
-		const boardData = await db
-			.select()
-			.from(board)
-			.where(and(eq(board.id, params.id), eq(board.userId, locals.user.id)))
-			.execute();
-
-		if (!boardData || boardData.length === 0) {
-			throw error(404, 'Board not found');
 		}
 
 		const formData = await request.formData();
@@ -121,24 +81,23 @@ export const actions: Actions = {
 			});
 		}
 
-		// Get the highest order value for existing lists
-		const maxOrderResult = await db
-			.select({ maxOrder: max(list.order) })
+		// Get the maximum order value
+		const maxOrder = await db
+			.select({ max: max(list.order) })
 			.from(list)
 			.where(eq(list.boardId, params.id))
 			.execute();
 
-		const nextOrder = (maxOrderResult[0]?.maxOrder ?? -1) + 1;
+		const newOrder = (maxOrder[0]?.max || 0) + 1;
 
 		const newList = await db
 			.insert(list)
 			.values({
 				name,
 				boardId: params.id,
-				order: nextOrder
+				order: newOrder
 			})
-			.returning()
-			.execute();
+			.returning();
 
 		return {
 			list: newList[0]
@@ -148,17 +107,6 @@ export const actions: Actions = {
 	createCard: async ({ request, locals, params }) => {
 		if (!locals.user) {
 			throw error(401, 'Unauthorized');
-		}
-
-		// Verify board exists and belongs to user
-		const boardData = await db
-			.select()
-			.from(board)
-			.where(and(eq(board.id, params.id), eq(board.userId, locals.user.id)))
-			.execute();
-
-		if (!boardData || boardData.length === 0) {
-			throw error(404, 'Board not found');
 		}
 
 		const formData = await request.formData();
@@ -213,19 +161,9 @@ export const actions: Actions = {
 		};
 	},
 
-	moveCard: async ({ request, locals, params }) => {
+	moveCard: async ({ request, locals }) => {
 		if (!locals.user) {
 			throw error(401, 'Unauthorized');
-		}
-
-		const boardData = await db
-			.select()
-			.from(board)
-			.where(and(eq(board.id, params.id), eq(board.userId, locals.user.id)))
-			.execute();
-
-		if (!boardData || boardData.length === 0) {
-			throw error(404, 'Board not found');
 		}
 
 		const formData = await request.formData();
@@ -321,42 +259,35 @@ export const actions: Actions = {
 		}
 
 		const formData = await request.formData();
-		const cardId = formData.get('cardId')?.toString();
+		const cardId = formData.get('cardId');
+
+		if (!cardId || typeof cardId !== 'string') {
+			return fail(400, { error: 'Card ID is required' });
+		}
+
+		// Check board access and role for the card's board
+		const cardWithBoard = await db.query.card.findFirst({
+			where: eq(card.id, cardId),
+			with: {
+				list: {
+					with: {
+						board: {
+							with: {
+								users: true
+							}
+						}
+					}
+				}
+			}
+		});
+
+		if (!cardWithBoard) {
+			return fail(404, { error: 'Card not found' });
+		}
+
 		const title = formData.get('title')?.toString();
 		const description = formData.get('description')?.toString();
 		const assigneeId = formData.get('assigneeId')?.toString();
-
-		if (!cardId) {
-			return fail(400, {
-				error: 'Card ID is required'
-			});
-		}
-
-		// Get the card to verify ownership
-		const existingCard = await db.select().from(card).where(eq(card.id, cardId)).execute();
-
-		if (!existingCard || existingCard.length === 0) {
-			throw error(404, 'Card not found');
-		}
-
-		const cardData = existingCard[0];
-
-		// Get the list and board to verify ownership
-		const listData = await db.select().from(list).where(eq(list.id, cardData.listId)).execute();
-
-		if (!listData || listData.length === 0) {
-			throw error(404, 'List not found');
-		}
-
-		const boardData = await db
-			.select()
-			.from(board)
-			.where(eq(board.id, listData[0].boardId))
-			.execute();
-
-		if (!boardData || boardData.length === 0 || boardData[0].userId !== locals.user.id) {
-			throw error(403, 'Forbidden');
-		}
 
 		const updateData: Partial<Card> = {};
 		if (title !== undefined) updateData.title = title;
@@ -381,30 +312,29 @@ export const actions: Actions = {
 		}
 
 		const formData = await request.formData();
-		const listId = formData.get('listId')?.toString();
+		const listId = formData.get('id');
+
+		if (!listId || typeof listId !== 'string') {
+			return fail(400, { error: 'List ID is required' });
+		}
+
+		// Check board access and role for the list's board
+		const listWithBoard = await db.query.list.findFirst({
+			where: eq(list.id, listId),
+			with: {
+				board: {
+					with: {
+						users: true
+					}
+				}
+			}
+		});
+
+		if (!listWithBoard) {
+			return fail(404, { error: 'List not found' });
+		}
+
 		const name = formData.get('name')?.toString();
-
-		if (!listId || !name) {
-			return fail(400, {
-				error: 'List ID and name are required'
-			});
-		}
-
-		// First, get the list to verify ownership
-		const existingList = await db.select().from(list).where(eq(list.id, listId)).execute();
-
-		if (!existingList || existingList.length === 0) {
-			throw error(404, 'List not found');
-		}
-
-		const listData = existingList[0];
-
-		// Get the board to verify ownership
-		const boardData = await db.select().from(board).where(eq(board.id, listData.boardId)).execute();
-
-		if (!boardData || boardData.length === 0 || boardData[0].userId !== locals.user.id) {
-			throw error(403, 'Forbidden');
-		}
 
 		const updatedList = await db
 			.update(list)
@@ -417,7 +347,7 @@ export const actions: Actions = {
 		return {
 			list: {
 				...updatedList[0],
-				order: existingList[0].order
+				order: listWithBoard.order
 			}
 		};
 	}

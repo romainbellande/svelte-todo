@@ -1,23 +1,26 @@
-import { error, fail } from '@sveltejs/kit';
+import { fail } from '@sveltejs/kit';
 import type { PageServerLoad, Actions } from './$types';
 import { db } from '$lib/server/db';
-import { board } from '$lib/server/db/schema';
+import { board, userBoard } from '$lib/server/db/schema';
 import { eq } from 'drizzle-orm';
+import { getUserFromSession } from '@/server/auth';
 
 export const load: PageServerLoad = async ({ locals }) => {
-	if (!locals.user) {
-		throw error(401, 'Unauthorized');
-	}
+	const currentUser = getUserFromSession(locals);
 
 	const boards = await db.query.board.findMany({
-		where: eq(board.userId, locals.user.id),
 		with: {
+			users: {
+				where: eq(userBoard.userId, currentUser.id)
+			},
 			lists: {
 				with: {
 					cards: true
 				}
 			}
-		}
+		},
+		where: (board, { exists }) =>
+			exists(db.select().from(userBoard).where(eq(userBoard.boardId, board.id)))
 	});
 
 	return {
@@ -27,9 +30,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 
 export const actions: Actions = {
 	create: async ({ request, locals }) => {
-		if (!locals.user) {
-			throw error(401, 'Unauthorized');
-		}
+		const currentUser = getUserFromSession(locals);
 
 		const formData = await request.formData();
 		const name = formData.get('name');
@@ -40,16 +41,26 @@ export const actions: Actions = {
 			});
 		}
 
-		const newBoard = await db
-			.insert(board)
-			.values({
-				name,
-				userId: locals.user.id
-			})
-			.returning();
+		const newBoard = await db.transaction(async (tx) => {
+			// Create the board
+			const [createdBoard] = await tx
+				.insert(board)
+				.values({
+					name
+				})
+				.returning();
+
+			// Create the user-board relationship
+			await tx.insert(userBoard).values({
+				userId: currentUser.id,
+				boardId: createdBoard.id
+			});
+
+			return createdBoard;
+		});
 
 		return {
-			board: newBoard[0]
+			board: newBoard
 		};
 	}
 };

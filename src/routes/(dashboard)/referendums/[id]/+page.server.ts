@@ -5,14 +5,13 @@ import {
 	voteEnum,
 	type VoteType
 } from '$lib/server/db/schema/referendum';
-import { error, redirect } from '@sveltejs/kit';
+import { error } from '@sveltejs/kit';
 import { eq } from 'drizzle-orm';
 import type { Actions, PageServerLoad } from './$types';
+import { getUserFromSession } from '@/server/auth';
 
-export const load: PageServerLoad = async ({ params, locals }) => {
-	if (!locals.user) {
-		throw redirect(303, '/login');
-	}
+export const load: PageServerLoad = async ({ locals, params }) => {
+	const currentUser = getUserFromSession(locals);
 
 	const referendumData = await db.query.referendum.findFirst({
 		where: eq(referendum.id, params.id),
@@ -32,15 +31,13 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 
 	return {
 		referendum: referendumData,
-		user: locals.user
+		user: currentUser
 	};
 };
 
 export const actions: Actions = {
 	vote: async ({ request, locals }) => {
-		if (!locals.user) {
-			throw error(401, 'Unauthorized');
-		}
+		const currentUser = getUserFromSession(locals);
 
 		const formData = await request.formData();
 		const referendumId = formData.get('referendumId') as string;
@@ -53,7 +50,7 @@ export const actions: Actions = {
 		// Check if user has already voted
 		const existingVote = await db.query.referendumVote.findFirst({
 			where: (vote, { and }) =>
-				and(eq(vote.referendumId, referendumId), eq(vote.userId, locals.user.id))
+				and(eq(vote.referendumId, referendumId), eq(vote.userId, currentUser.id))
 		});
 
 		if (existingVote) {
@@ -76,7 +73,7 @@ export const actions: Actions = {
 
 		await db.insert(referendumVote).values({
 			referendumId,
-			userId: locals.user.id,
+			userId: currentUser.id,
 			vote,
 			createdAt: new Date(),
 			updatedAt: new Date()

@@ -4,7 +4,7 @@ import { sha256 } from '@oslojs/crypto/sha2';
 import { encodeBase64url, encodeHexLowerCase } from '@oslojs/encoding';
 import { db } from '$lib/server/db';
 import * as table from '$lib/server/db/schema';
-
+import { redirect } from '@sveltejs/kit';
 const DAY_IN_MS = 1000 * 60 * 60 * 24;
 
 export const sessionCookieName = 'auth-session';
@@ -83,4 +83,14 @@ export function deleteSessionTokenCookie(event: RequestEvent) {
 	event.cookies.delete(sessionCookieName, {
 		path: '/'
 	});
+}
+
+export function getUserFromSession({
+	user
+}: RequestEvent['locals']): NonNullable<App.Locals['user']> {
+	if (!user) {
+		throw redirect(302, '/login');
+	}
+
+	return user;
 }
