@@ -14,8 +14,7 @@
 	const { data }: Props = $props();
 	const billingFileKey = $derived(data.item?.billingFileKey);
 	const form = superForm(data.billingForm);
-	const { enhance, errors } = form;
-
+	const { enhance } = form;
 </script>
 
 <div class="mt-6 border-t pt-6">

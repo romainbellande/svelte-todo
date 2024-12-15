@@ -3,8 +3,12 @@ import { createId } from '@paralleldrive/cuid2';
 import { relations } from 'drizzle-orm';
 
 const id = text('id').primaryKey().$defaultFn(createId);
-const createdAt = timestamp('created_at', { withTimezone: true, mode: 'date' }).defaultNow().notNull();
-const updatedAt = timestamp('updated_at', { withTimezone: true, mode: 'date' }).defaultNow().notNull();
+const createdAt = timestamp('created_at', { withTimezone: true, mode: 'date' })
+	.defaultNow()
+	.notNull();
+const updatedAt = timestamp('updated_at', { withTimezone: true, mode: 'date' })
+	.defaultNow()
+	.notNull();
 
 export const user = pgTable('user', {
 	id,

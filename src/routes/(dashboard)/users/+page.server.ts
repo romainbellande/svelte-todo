@@ -10,17 +10,20 @@ export const load: PageServerLoad = async ({ url }) => {
 	const search = url.searchParams.get('search') ?? '';
 
 	try {
-		const query = db.select().from(user).where(
-			or(
-				search
-					? or(
-						ilike(user.firstname, `%${search}%`),
-						ilike(user.lastname, `%${search}%`),
-						ilike(user.email, `%${search}%`)
-					)
-					: undefined
-			)
-		);
+		const query = db
+			.select()
+			.from(user)
+			.where(
+				or(
+					search
+						? or(
+								ilike(user.firstname, `%${search}%`),
+								ilike(user.lastname, `%${search}%`),
+								ilike(user.email, `%${search}%`)
+							)
+						: undefined
+				)
+			);
 
 		const totalUsers = await db.select({ count: count() }).from(user);
 		const users = await query

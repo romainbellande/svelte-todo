@@ -5,10 +5,10 @@
 	import { dndzone } from 'svelte-dnd-action';
 	type Props = {
 		data: PageData;
-	}
+	};
 	const { data }: Props = $props();
 	type Card = (typeof lists)[0]['cards'][0];
-	let lists = $state<(typeof data.board.lists)>([]);
+	let lists = $state<typeof data.board.lists>([]);
 	$effect(() => {
 		lists = data.board.lists.sort((a, b) => a.order - b.order);
 	});

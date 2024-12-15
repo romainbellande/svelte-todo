@@ -55,7 +55,7 @@ export const load: PageServerLoad = async ({ params }) => {
 	const formData = {
 		reference: existingItem.reference,
 		name: existingItem.name,
-		assigneeId: existingItem.assigneeId || undefined,
+		assigneeId: existingItem.assigneeId || undefined
 	};
 
 	const form = await superValidate(formData, zod(inventorySchema));
@@ -86,8 +86,7 @@ export const actions: Actions = {
 
 		const { data } = formData;
 
-		const assigneeId =
-			data.assigneeId && data.assigneeId.trim() !== '' ? data.assigneeId : null;
+		const assigneeId = data.assigneeId && data.assigneeId.trim() !== '' ? data.assigneeId : null;
 		const assignedAt = assigneeId ? new Date() : null;
 
 		if (params.id === 'new') {
@@ -136,9 +135,7 @@ export const actions: Actions = {
 			const fileKey = `${params.id}/${billingFile.name}`;
 			const { Key } = await uploadFile(billingFile, fileKey, env.s3.inventoryBucketName);
 
-			await db.update(item)
-				.set({ billingFileKey: Key })
-				.where(eq(item.id, params.id));
+			await db.update(item).set({ billingFileKey: Key }).where(eq(item.id, params.id));
 
 			return { billingForm: form };
 		} catch (error) {

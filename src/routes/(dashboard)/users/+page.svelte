@@ -1,6 +1,6 @@
 <!-- Use Svelte 5 syntax -->
 <script lang="ts">
-	import { Plus, Search } from 'lucide-svelte';
+	import { Plus } from 'lucide-svelte';
 	import { Button } from '$lib/components/ui/button';
 	import {
 		Table,
@@ -43,7 +43,7 @@
 	});
 </script>
 
-<div class="container py-8 space-y-8">
+<div class="container space-y-8 py-8">
 	<div class="flex justify-between">
 		<h1 class="text-4xl font-bold">{m.users_title()}</h1>
 		<Button href="/users/new">
@@ -89,7 +89,9 @@
 							<TableCell>{formatDate(user.createdAt)}</TableCell>
 							<TableCell>
 								<div class="flex gap-2">
-									<Button variant="ghost" size="sm" href="/users/{user.id}">{m.users_action_edit()}</Button>
+									<Button variant="ghost" size="sm" href="/users/{user.id}"
+										>{m.users_action_edit()}</Button
+									>
 									<form action="/users/{user.id}?/delete" method="POST">
 										<Button
 											variant="ghost"

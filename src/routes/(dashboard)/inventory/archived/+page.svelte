@@ -25,7 +25,7 @@
 	});
 </script>
 
-<div class="container py-8 space-y-8">
+<div class="container space-y-8 py-8">
 	<div class="flex justify-between">
 		<h1 class="text-4xl font-bold">{m.inventory_archived_title()}</h1>
 		<Button href="/inventory" variant="outline">{m.inventory_archived_back()}</Button>

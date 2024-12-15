@@ -23,8 +23,8 @@
 	});
 </script>
 
-<div class="container py-8 space-y-8">
-	<div class="flex justify-between items-center">
+<div class="container space-y-8 py-8">
+	<div class="flex items-center justify-between">
 		<h1 class="text-4xl font-bold">{m.users_edit_title()}</h1>
 		<BackButton href="/users" />
 	</div>

@@ -59,11 +59,7 @@
 					<FormControl>
 						{#snippet children({ props })}
 							<FormLabel for="reference">Reference</FormLabel>
-							<Input
-								type="reference"
-								name={props.name}
-								bind:value={$formData.reference}
-							/>
+							<Input type="reference" name={props.name} bind:value={$formData.reference} />
 						{/snippet}
 					</FormControl>
 					{#if $errors.reference}
@@ -77,15 +73,9 @@
 					<FormControl>
 						{#snippet children({ props })}
 							<FormLabel for="assignee">Assignee</FormLabel>
-							<Select
-								type="single"
-								name={props.name}
-								bind:value={$formData.assigneeId}
-							>
+							<Select type="single" name={props.name} bind:value={$formData.assigneeId}>
 								<SelectTrigger {...props}>
-									{ assignee()
-										? assignee()?.label
-										: 'Select assignee' }
+									{assignee() ? assignee()?.label : 'Select assignee'}
 								</SelectTrigger>
 								<SelectContent>
 									<SelectItem value="">None</SelectItem>

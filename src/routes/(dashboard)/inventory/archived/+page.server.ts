@@ -14,11 +14,11 @@ export const load: PageServerLoad = async ({ url }) => {
 			or(
 				search
 					? or(
-						ilike(item.name, `%${search}%`),
-						ilike(item.reference, `%${search}%`),
-						ilike(user.firstname, `%${search}%`),
-						ilike(user.lastname, `%${search}%`)
-					)
+							ilike(item.name, `%${search}%`),
+							ilike(item.reference, `%${search}%`),
+							ilike(user.firstname, `%${search}%`),
+							ilike(user.lastname, `%${search}%`)
+						)
 					: undefined,
 				isNotNull(item.archivedAt)
 			)
@@ -34,11 +34,11 @@ export const load: PageServerLoad = async ({ url }) => {
 			or(
 				search
 					? or(
-						ilike(item.name, `%${search}%`),
-						ilike(item.reference, `%${search}%`),
-						ilike(user.firstname, `%${search}%`),
-						ilike(user.lastname, `%${search}%`)
-					)
+							ilike(item.name, `%${search}%`),
+							ilike(item.reference, `%${search}%`),
+							ilike(user.firstname, `%${search}%`),
+							ilike(user.lastname, `%${search}%`)
+						)
 					: undefined,
 				isNotNull(item.archivedAt)
 			)

@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { env as privateEnv } from '$env/dynamic/private';
-import type { S3ClientConfig } from '@aws-sdk/client-s3'
+import type { S3ClientConfig } from '@aws-sdk/client-s3';
 
 const dynamicPrivateEnvSchema = z.object({
 	S3_ACCESS_KEY_ID: z.string().min(1, 'S3 Access Key ID is required'),
@@ -26,7 +26,7 @@ function validateEnv(env: Record<string, string | undefined>): ServerEnv {
 }
 
 interface S3Config extends S3ClientConfig {
-	inventoryBucketName: string
+	inventoryBucketName: string;
 }
 
 class Environment {

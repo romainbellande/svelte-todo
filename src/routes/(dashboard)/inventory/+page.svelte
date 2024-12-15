@@ -20,7 +20,7 @@
 		PaginationItem,
 		PaginationLink,
 		PaginationNextButton,
-		PaginationPrevButton,
+		PaginationPrevButton
 	} from '$lib/components/ui/pagination';
 	import * as m from '$lib/paraglide/messages';
 
@@ -48,12 +48,6 @@
 			goto(url.toString());
 		}, 300);
 	}
-
-	function handlePageChange(page: number) {
-		const url = new URL(window.location.href);
-		url.searchParams.set('page', page.toString());
-		goto(url.toString());
-	}
 </script>
 
 <div class="container mx-auto py-10">
@@ -68,8 +62,8 @@
 		</div>
 	</div>
 
-	<div class="flex items-center justify-between mb-6 mt-6">
-		<div class="flex items-center gap-2 relative w-[300px]">
+	<div class="mb-6 mt-6 flex items-center justify-between">
+		<div class="relative flex w-[300px] items-center gap-2">
 			<Input
 				type="text"
 				placeholder={m.inventory_search_placeholder()}
@@ -101,10 +95,7 @@
 					{#each data.items as item}
 						<TableRow>
 							<TableCell>
-								<a
-									href="/inventory/{item.id}"
-									class="text-blue-600 hover:underline"
-								>
+								<a href="/inventory/{item.id}" class="text-blue-600 hover:underline">
 									{item.name}
 								</a>
 							</TableCell>
@@ -119,7 +110,9 @@
 							<TableCell>{item.assignedAt ? formatDate(item.assignedAt) : '-'}</TableCell>
 							<TableCell>
 								<div class="flex gap-2">
-									<Button variant="ghost" size="sm" href="/inventory/{item.id}">{m.inventory_edit()}</Button>
+									<Button variant="ghost" size="sm" href="/inventory/{item.id}"
+										>{m.inventory_edit()}</Button
+									>
 									<form action="/inventory/{item.id}?/archive" method="POST">
 										<Button
 											variant="ghost"
@@ -150,18 +143,15 @@
 							</PaginationPrevButton>
 						</PaginationItem>
 						{#each pages as page (page.key)}
-						{#if page.type === 'ellipsis'}
-							<PaginationEllipsis />
-						{:else}
-							<PaginationItem>
-								<PaginationLink
-									{page}
-									isActive={currentPage === page.value}
-								>
-									{page.value}
-								</PaginationLink>
-							</PaginationItem>
-						{/if}
+							{#if page.type === 'ellipsis'}
+								<PaginationEllipsis />
+							{:else}
+								<PaginationItem>
+									<PaginationLink {page} isActive={currentPage === page.value}>
+										{page.value}
+									</PaginationLink>
+								</PaginationItem>
+							{/if}
 						{/each}
 						<PaginationItem>
 							<PaginationNextButton>

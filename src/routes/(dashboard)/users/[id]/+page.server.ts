@@ -44,12 +44,11 @@ export const actions: Actions = {
 					updatedAt: new Date()
 				})
 				.where(eq(user.id, params.id));
+		} catch (err) {
+			console.error('Error updating user:', err);
+			return fail(500, { form });
+		}
 
-			} catch (err) {
-				console.error('Error updating user:', err);
-				return fail(500, { form });
-			}
-
-			throw redirect(303, `/users`);
+		throw redirect(303, `/users`);
 	}
 };
