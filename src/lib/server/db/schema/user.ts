@@ -15,6 +15,8 @@ export const user = pgTable('user', {
 	activatedAt: timestamp('activated_at'),
 	activationToken: text('activation_token').unique(),
 	activationTokenExpiresAt: timestamp('activation_token_expires_at'),
+	resetPasswordToken: text('reset_password_token').unique(),
+	resetPasswordTokenExpiresAt: timestamp('reset_password_token_expires_at'),
 	createdAt,
 	updatedAt
 });

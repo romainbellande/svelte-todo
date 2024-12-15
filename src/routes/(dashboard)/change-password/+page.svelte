@@ -1,6 +1,4 @@
-<!-- Use Svelte 5 syntax -->
 <script lang="ts">
-	import * as m from '$lib/paraglide/messages';
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
 	import { FormField, FormControl, FormLabel } from '$lib/components/ui/form';
@@ -15,17 +13,13 @@
 	const { data }: Props = $props();
 	const form = superForm(data.form);
 	const { form: formData, enhance } = form;
-
-	$effect(() => {
-		document.title = m.activation_title();
-	});
 </script>
 
 <div class="container flex min-h-screen items-center justify-center">
 	<div class="w-full max-w-md space-y-4">
 		<div class="space-y-2 text-center">
-			<h1 class="text-2xl font-semibold tracking-tight">{m.activation_title()}</h1>
-			<p class="text-sm text-muted-foreground">Please set your password to activate your account</p>
+			<h1 class="text-2xl font-semibold tracking-tight">Change Password</h1>
+			<p class="text-sm text-muted-foreground">Please set a new password for your account</p>
 		</div>
 
 		<form method="POST" class="space-y-4" use:enhance>
@@ -33,12 +27,12 @@
 				<div class="space-y-2">
 					<FormControl>
 						{#snippet children({ props })}
-							<FormLabel for="password">Password</FormLabel>
+							<FormLabel for="password">New Password</FormLabel>
 							<Input
 								{...props}
 								type="password"
 								bind:value={$formData.password}
-								placeholder="Enter your password"
+								placeholder="Enter your new password"
 							/>
 						{/snippet}
 					</FormControl>
@@ -55,7 +49,7 @@
 								{...props}
 								type="password"
 								bind:value={$formData.confirmPassword}
-								placeholder="Confirm your password"
+								placeholder="Confirm your new password"
 							/>
 						{/snippet}
 					</FormControl>
@@ -63,7 +57,7 @@
 				</div>
 			</FormField>
 
-			<Button type="submit" class="w-full">Activate Account</Button>
+			<Button type="submit" class="w-full">Change Password</Button>
 		</form>
 	</div>
 </div>

@@ -1,9 +1,7 @@
-<!-- Use Svelte 5 syntax -->
 <script lang="ts">
-	import * as m from '$lib/paraglide/messages';
 	import { Button } from '$lib/components/ui/button';
-	import { Input } from '$lib/components/ui/input';
 	import { FormField, FormControl, FormLabel } from '$lib/components/ui/form';
+	import { Input } from '$lib/components/ui/input';
 	import { superForm } from 'sveltekit-superforms/client';
 	import type { PageData } from './$types';
 	import FormFieldErrors from '@/components/ui/form/form-field-errors.svelte';
@@ -14,31 +12,31 @@
 
 	const { data }: Props = $props();
 	const form = superForm(data.form);
-	const { form: formData, enhance } = form;
+	const { form: formData, enhance, errors } = form;
 
 	$effect(() => {
-		document.title = m.activation_title();
+		document.title = 'Reset Password';
 	});
 </script>
 
 <div class="container flex min-h-screen items-center justify-center">
 	<div class="w-full max-w-md space-y-4">
 		<div class="space-y-2 text-center">
-			<h1 class="text-2xl font-semibold tracking-tight">{m.activation_title()}</h1>
-			<p class="text-sm text-muted-foreground">Please set your password to activate your account</p>
+			<h1 class="text-2xl font-semibold tracking-tight">Reset Password</h1>
+			<p class="text-sm text-muted-foreground">Enter your new password below</p>
 		</div>
 
-		<form method="POST" class="space-y-4" use:enhance>
+		<form method="POST" action="?/reset" class="space-y-4" use:enhance>
 			<FormField {form} name="password">
 				<div class="space-y-2">
 					<FormControl>
 						{#snippet children({ props })}
-							<FormLabel for="password">Password</FormLabel>
+							<FormLabel for="password">New Password</FormLabel>
 							<Input
 								{...props}
 								type="password"
 								bind:value={$formData.password}
-								placeholder="Enter your password"
+								aria-invalid={$errors.password ? 'true' : undefined}
 							/>
 						{/snippet}
 					</FormControl>
@@ -55,7 +53,7 @@
 								{...props}
 								type="password"
 								bind:value={$formData.confirmPassword}
-								placeholder="Confirm your password"
+								aria-invalid={$errors.confirmPassword ? 'true' : undefined}
 							/>
 						{/snippet}
 					</FormControl>
@@ -63,7 +61,9 @@
 				</div>
 			</FormField>
 
-			<Button type="submit" class="w-full">Activate Account</Button>
+			<div class="space-y-2">
+				<Button type="submit" class="w-full">Reset Password</Button>
+			</div>
 		</form>
 	</div>
 </div>

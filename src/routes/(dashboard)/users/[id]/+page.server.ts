@@ -8,7 +8,8 @@ import { zod } from 'sveltekit-superforms/adapters';
 import { userSchema } from './schema';
 import { hash } from '@node-rs/argon2';
 import { randomBytes } from 'crypto';
-import { sendActivationEmail } from '$lib/server/email';
+import { sendInvitationEmail } from '$lib/server/email';
+import { generateSessionToken } from '@/server/auth';
 
 function generateActivationToken(): string {
 	return randomBytes(32).toString('hex');
@@ -49,7 +50,8 @@ export const actions: Actions = {
 		}
 
 		try {
-			const passwordHash = await hash('password'); // Default password that should be changed on first login
+			const temporaryPassword = generateSessionToken().slice(0, 12);
+			const passwordHash = await hash(temporaryPassword); // Default password that should be changed on first login
 			const activationToken = generateActivationToken();
 			const now = new Date();
 			const activationTokenExpiresAt = new Date(now.getTime() + 24 * 60 * 60 * 1000); // 24 hours from now
@@ -69,7 +71,7 @@ export const actions: Actions = {
 
 			const { email, firstname, lastname } = newUser;
 
-			await sendActivationEmail({ email, activationToken, firstname, lastname });
+			await sendInvitationEmail({ email, activationToken, firstname, lastname });
 		} catch (err) {
 			console.error('Error creating user:', err);
 			return fail(500, { form });
