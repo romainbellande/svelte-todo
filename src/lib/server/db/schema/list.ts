@@ -22,3 +22,5 @@ export const listRelations = relations(list, ({ one, many }) => ({
 	}),
 	cards: many(card)
 }));
+
+export type List = typeof list.$inferSelect;

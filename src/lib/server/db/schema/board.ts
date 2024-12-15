@@ -21,3 +21,5 @@ export const boardRelations = relations(board, ({ one, many }) => ({
 	}),
 	lists: many(list)
 }));
+
+export type Board = typeof board.$inferSelect;

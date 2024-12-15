@@ -22,6 +22,10 @@
 		--accent-foreground: 222.2 47.4% 11.2%;
 		--destructive: 0 72.2% 50.6%;
 		--destructive-foreground: 210 40% 98%;
+		--success: 142.9 76.2% 36%;
+		--success-foreground: 210 40% 98%;
+		--warning: 50 100% 66%;
+		--warning-foreground: 210 40% 98%;
 		--ring: 222.2 84% 4.9%;
 		--radius: 0.5rem;
 		--sidebar-background: 0 0% 98%;

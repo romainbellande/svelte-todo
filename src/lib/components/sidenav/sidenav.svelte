@@ -1,7 +1,7 @@
 <script lang="ts">
 	import SidenavTop from './sidenav-top.svelte';
 	import SidenavItem from './sidenav-item.svelte';
-	import { Home, LayoutDashboard, Package, Users } from 'lucide-svelte';
+	import { Home, LayoutDashboard, Package, Users, LogOut } from 'lucide-svelte';
 </script>
 
 <aside
@@ -27,5 +27,16 @@
 				Users
 			</SidenavItem>
 		</nav>
+		<div class="border-t px-2 py-4">
+			<form action="/api/logout" method="POST">
+				<button
+					type="submit"
+					class="flex w-full items-center rounded-lg px-2 py-2 text-base font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+				>
+					<LogOut class="mr-3 h-5 w-5" />
+					Logout
+				</button>
+			</form>
+		</div>
 	</div>
 </aside>

@@ -1,4 +1,4 @@
-import { pgTable, text, boolean } from 'drizzle-orm/pg-core';
+import { pgTable, text, boolean, timestamp } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
 import { id, createdAt, updatedAt } from './common';
 import { board } from './board';
@@ -12,6 +12,9 @@ export const user = pgTable('user', {
 	lastname: text('lastname').notNull(),
 	passwordHash: text('password_hash').notNull(),
 	disabled: boolean('disabled').notNull().default(false),
+	activatedAt: timestamp('activated_at'),
+	activationToken: text('activation_token').unique(),
+	activationTokenExpiresAt: timestamp('activation_token_expires_at'),
 	createdAt,
 	updatedAt
 });
@@ -21,3 +24,5 @@ export const userRelations = relations(user, ({ many }) => ({
 	assignedCards: many(card),
 	assignedItems: many(item)
 }));
+
+export type User = typeof user.$inferSelect;

@@ -1,28 +1,69 @@
 import { migrationClient } from '.';
-import * as schema from './schema';
+import { user, board } from './schema';
 import { hash } from '@node-rs/argon2';
 import { reset } from 'drizzle-seed';
 import { drizzle } from 'drizzle-orm/postgres-js';
+import * as schema from './schema';
 
-const { user } = schema;
+async function seedDatabase() {
+	const db = drizzle(migrationClient, { schema });
 
-const main = async () => {
-	const migrationDb = drizzle(migrationClient, { schema });
 	try {
-		console.log('Resetting database...');
-		await reset(migrationDb, schema);
+		await reset(db, schema);
+		// Create users
+		const passwordHash = await hash('mypassword');
+		const now = new Date();
+		const users = await db
+			.insert(user)
+			.values([
+				{
+					email: 'admin@example.com',
+					firstname: 'Romain',
+					lastname: 'Bellande',
+					passwordHash,
+					disabled: false,
+					activatedAt: now, // Admin user is activated by default
+					activationToken: null,
+					activationTokenExpiresAt: null,
+					createdAt: now,
+					updatedAt: now
+				},
+				{
+					email: 'jane@example.com',
+					firstname: 'Jane',
+					lastname: 'Smith',
+					passwordHash,
+					disabled: false,
+					activatedAt: now, // Admin user is activated by default
+					activationToken: null,
+					activationTokenExpiresAt: null,
+					createdAt: now,
+					updatedAt: now
+				}
+			])
+			.returning();
 
-		console.log('Seeding database...');
-		console.log('Creating admin user...');
-
-		await migrationDb.insert(user).values({
-			passwordHash: await hash('mypassword'),
-			email: 'admin@example.com',
-			firstname: 'John',
-			lastname: 'Doe'
-		});
-
-		console.log('Database seeded!');
+		// Create boards
+		await db.insert(board).values([
+			{
+				name: 'Personal',
+				userId: users[0].id,
+				createdAt: new Date(),
+				updatedAt: new Date()
+			},
+			{
+				name: 'Work',
+				userId: users[0].id,
+				createdAt: new Date(),
+				updatedAt: new Date()
+			},
+			{
+				name: 'Shopping',
+				userId: users[1].id,
+				createdAt: new Date(),
+				updatedAt: new Date()
+			}
+		]);
 	} catch (error) {
 		console.error('Error seeding database:', error);
 		process.exit(1);
@@ -32,6 +73,6 @@ const main = async () => {
 		console.log('Database connection closed.');
 		process.exit(0);
 	}
-};
+}
 
-main();
+seedDatabase();

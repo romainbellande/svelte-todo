@@ -27,3 +27,5 @@ export const cardRelations = relations(card, ({ one }) => ({
 		references: [user.id]
 	})
 }));
+
+export type Card = typeof card.$inferSelect;

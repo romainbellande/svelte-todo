@@ -8,29 +8,31 @@
 	import { superForm } from 'sveltekit-superforms/client';
 	import FormFieldErrors from '@/components/ui/form/form-field-errors.svelte';
 	import BackButton from '$lib/components/ui/back-button.svelte';
+	import { page } from '$app/stores';
 
 	type Props = {
 		data: PageData;
 	};
 
 	const { data }: Props = $props();
+	const isNew = $page.params.id === 'new';
 
 	const form = superForm(data.form);
 	const { form: formData, enhance, errors } = form;
 
 	$effect(() => {
-		document.title = m.users_edit_title();
+		document.title = isNew ? m.users_new_title() : m.users_edit_title();
 	});
 </script>
 
 <div class="container space-y-8 py-8">
 	<div class="flex items-center justify-between">
-		<h1 class="text-4xl font-bold">{m.users_edit_title()}</h1>
+		<h1 class="text-4xl font-bold">{isNew ? m.users_new_title() : m.users_edit_title()}</h1>
 		<BackButton href="/users" />
 	</div>
 
 	<div class="max-w-2xl">
-		<form method="POST" action="?/update" class="space-y-6" use:enhance>
+		<form method="POST" action={isNew ? '?/create' : '?/update'} class="space-y-6" use:enhance>
 			<FormField {form} name="firstname">
 				<div class="space-y-2">
 					<FormControl>
