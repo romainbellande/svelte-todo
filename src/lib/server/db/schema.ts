@@ -3,6 +3,8 @@ import { createId } from '@paralleldrive/cuid2';
 import { relations } from 'drizzle-orm';
 
 const id = text('id').primaryKey().$defaultFn(createId);
+const createdAt = timestamp('created_at', { withTimezone: true, mode: 'date' }).defaultNow().notNull();
+const updatedAt = timestamp('updated_at', { withTimezone: true, mode: 'date' }).defaultNow().notNull();
 
 export const user = pgTable('user', {
 	id,
@@ -10,7 +12,9 @@ export const user = pgTable('user', {
 	email: text('email').notNull().unique(),
 	firstname: text('firstname').notNull(),
 	lastname: text('lastname').notNull(),
-	passwordHash: text('password_hash').notNull()
+	passwordHash: text('password_hash').notNull(),
+	createdAt,
+	updatedAt
 });
 
 export const userRelations = relations(user, ({ many }) => ({
@@ -33,7 +37,8 @@ export const board = pgTable('board', {
 	userId: text('user_id')
 		.notNull()
 		.references(() => user.id),
-	createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' }).defaultNow().notNull()
+	createdAt,
+	updatedAt
 });
 
 export const boardRelations = relations(board, ({ one, many }) => ({
@@ -51,7 +56,8 @@ export const list = pgTable('list', {
 		.notNull()
 		.references(() => board.id),
 	order: integer('order').notNull(),
-	createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' }).defaultNow().notNull()
+	createdAt,
+	updatedAt
 });
 
 export const listRelations = relations(list, ({ one, many }) => ({
@@ -71,7 +77,8 @@ export const card = pgTable('card', {
 		.references(() => list.id),
 	position: text('position').notNull(),
 	assigneeId: text('assignee_id').references(() => user.id),
-	createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' }).defaultNow().notNull()
+	createdAt,
+	updatedAt
 });
 
 export const cardRelations = relations(card, ({ one }) => ({
@@ -93,8 +100,8 @@ export const item = pgTable('item', {
 	assignedAt: timestamp('assigned_at', { withTimezone: true, mode: 'date' }),
 	billingFileKey: text('billing_file_key'),
 	archivedAt: timestamp('archived_at', { withTimezone: true, mode: 'date' }),
-	createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' }).defaultNow().notNull(),
-	updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'date' }).defaultNow().notNull()
+	createdAt,
+	updatedAt
 });
 
 export const itemRelations = relations(item, ({ one }) => ({

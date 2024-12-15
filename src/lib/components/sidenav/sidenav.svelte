@@ -1,7 +1,7 @@
 <script lang="ts">
 	import SidenavTop from './sidenav-top.svelte';
 	import SidenavItem from './sidenav-item.svelte';
-	import { Home, LayoutDashboard, Package } from 'lucide-svelte';
+	import { Home, LayoutDashboard, Package, Users } from 'lucide-svelte';
 </script>
 
 <aside
@@ -21,6 +21,10 @@
 			<SidenavItem href="/inventory">
 				<Package class="mr-3 h-5 w-5" />
 				Inventory
+			</SidenavItem>
+			<SidenavItem href="/users">
+				<Users class="mr-3 h-5 w-5" />
+				Users
 			</SidenavItem>
 		</nav>
 	</div>
