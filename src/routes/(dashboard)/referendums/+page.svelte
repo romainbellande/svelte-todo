@@ -13,8 +13,7 @@
 	import { Input } from '$lib/components/ui/input';
 	import { Select, SelectContent, SelectItem, SelectTrigger } from '$lib/components/ui/select';
 	import * as m from '$lib/paraglide/messages';
-	import { formatDate } from '$lib/utils';
-	import { cn } from '$lib/utils';
+	import { cn, formatDate, getReferendumStatus } from '$lib/utils';
 	import type { PageData } from './$types';
 	import { goto } from '$app/navigation';
 
@@ -48,19 +47,8 @@
 		goto(url.toString());
 	}
 
-	function isReferendumActive(fromDate: Date, toDate: Date) {
-		const now = new Date();
-		return now >= fromDate && now <= toDate;
-	}
-
-	function isReferendumUpcoming(fromDate: Date) {
-		const now = new Date();
-		return now < fromDate;
-	}
-
-	function isReferendumEnded(toDate: Date) {
-		const now = new Date();
-		return now > toDate;
+	function getStatus(fromDate: Date, toDate: Date) {
+		return getReferendumStatus(fromDate, toDate);
 	}
 
 	$effect(() => {
@@ -125,20 +113,18 @@
 									class={cn(
 										'inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ring-1 ring-inset',
 										{
-											'bg-green-50 text-green-700 ring-green-600/20': isReferendumActive(
-												referendum.fromDate,
-												referendum.toDate
-											),
-											'bg-yellow-50 text-yellow-700 ring-yellow-600/20': isReferendumUpcoming(
-												referendum.fromDate
-											),
-											'bg-red-50 text-red-700 ring-red-600/20': isReferendumEnded(referendum.toDate)
+											'bg-green-50 text-green-700 ring-green-600/20':
+												getStatus(referendum.fromDate, referendum.toDate) === 'active',
+											'bg-yellow-50 text-yellow-700 ring-yellow-600/20':
+												getStatus(referendum.fromDate, referendum.toDate) === 'upcoming',
+											'bg-red-50 text-red-700 ring-red-600/20':
+												getStatus(referendum.fromDate, referendum.toDate) === 'ended'
 										}
 									)}
 								>
-									{#if isReferendumActive(referendum.fromDate, referendum.toDate)}
+									{#if getStatus(referendum.fromDate, referendum.toDate) === 'active'}
 										{m.referendums_status_active()}
-									{:else if isReferendumUpcoming(referendum.fromDate)}
+									{:else if getStatus(referendum.fromDate, referendum.toDate) === 'upcoming'}
 										{m.referendums_status_upcoming()}
 									{:else}
 										{m.referendums_status_ended()}

@@ -10,7 +10,7 @@
 	} from '$lib/components/ui/card';
 	import { Progress } from '$lib/components/ui/progress';
 	import * as m from '$lib/paraglide/messages';
-	import { formatDate, cn } from '$lib/utils';
+	import { cn, formatDate, getReferendumStatus } from '$lib/utils';
 	import type { PageData } from './$types';
 	import { enhance } from '$app/forms';
 
@@ -22,12 +22,7 @@
 	const user = $derived(data.user);
 	const referendum = $derived(data.referendum);
 
-	function getReferendumStatus(fromDate: Date, toDate: Date) {
-		const now = new Date();
-		if (now < fromDate) return 'upcoming';
-		if (now > toDate) return 'active';
-		return 'ended';
-	}
+	const status = $derived(getReferendumStatus(data.referendum.fromDate, data.referendum.toDate));
 
 	function hasUserVoted() {
 		return referendum.votes.some((v) => v.userId === user.id);
@@ -47,7 +42,6 @@
 		};
 	}
 
-	const status = $derived(getReferendumStatus(referendum.fromDate, referendum.toDate));
 	const stats = $derived(getVoteStats());
 	const userHasVoted = $derived(hasUserVoted());
 
