@@ -1,5 +1,5 @@
 import { migrationClient } from '.';
-import { user, board } from './schema';
+import { user, board, referendum, referendumVote } from './schema';
 import { hash } from '@node-rs/argon2';
 import { reset } from 'drizzle-seed';
 import { drizzle } from 'drizzle-orm/postgres-js';
@@ -11,9 +11,23 @@ async function seedDatabase() {
 	try {
 		await reset(db, schema);
 		// Create users
-		const passwordHash = await hash('mypassword');
 		const now = new Date();
-		const users = await db
+		const tomorrow = new Date(now);
+		tomorrow.setDate(tomorrow.getDate() + 1);
+		const nextWeek = new Date(now);
+		nextWeek.setDate(nextWeek.getDate() + 7);
+		const lastWeek = new Date(now);
+		lastWeek.setDate(lastWeek.getDate() - 7);
+		const yesterday = new Date(now);
+		yesterday.setDate(yesterday.getDate() - 1);
+
+		await db.delete(user);
+		await db.delete(referendum);
+		await db.delete(referendumVote);
+
+		const passwordHash = await hash('mypassword');
+
+		const [adminUser] = await db
 			.insert(user)
 			.values([
 				{
@@ -43,23 +57,42 @@ async function seedDatabase() {
 			])
 			.returning();
 
+		// Create sample referendums
+		await db.insert(referendum).values([
+			{
+				title: 'Office Location Change',
+				description: 'Proposal to move the office to a new location in downtown',
+				fromDate: now,
+				toDate: nextWeek,
+				createdById: adminUser.id
+			},
+			{
+				title: 'New Work Schedule',
+				description: 'Proposal for flexible working hours',
+				fromDate: tomorrow,
+				toDate: nextWeek,
+				createdById: adminUser.id
+			},
+			{
+				title: 'Past Company Event',
+				description: 'Vote for the past company event location',
+				fromDate: lastWeek,
+				toDate: yesterday,
+				createdById: adminUser.id
+			}
+		]);
+
 		// Create boards
 		await db.insert(board).values([
 			{
 				name: 'Personal',
-				userId: users[0].id,
+				userId: adminUser.id,
 				createdAt: new Date(),
 				updatedAt: new Date()
 			},
 			{
 				name: 'Work',
-				userId: users[0].id,
-				createdAt: new Date(),
-				updatedAt: new Date()
-			},
-			{
-				name: 'Shopping',
-				userId: users[1].id,
+				userId: adminUser.id,
 				createdAt: new Date(),
 				updatedAt: new Date()
 			}
