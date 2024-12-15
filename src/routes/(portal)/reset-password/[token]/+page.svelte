@@ -1,4 +1,5 @@
 <script lang="ts">
+	import * as m from '$lib/paraglide/messages';
 	import { Button } from '$lib/components/ui/button';
 	import { FormField, FormControl, FormLabel } from '$lib/components/ui/form';
 	import { Input } from '$lib/components/ui/input';
@@ -15,15 +16,15 @@
 	const { form: formData, enhance, errors } = form;
 
 	$effect(() => {
-		document.title = 'Reset Password';
+		document.title = m.reset_password_title();
 	});
 </script>
 
 <div class="container flex min-h-screen items-center justify-center">
 	<div class="w-full max-w-md space-y-4">
 		<div class="space-y-2 text-center">
-			<h1 class="text-2xl font-semibold tracking-tight">Reset Password</h1>
-			<p class="text-sm text-muted-foreground">Enter your new password below</p>
+			<h1 class="text-2xl font-semibold tracking-tight">{m.reset_password_title()}</h1>
+			<p class="text-sm text-muted-foreground">{m.reset_password_new_subtitle()}</p>
 		</div>
 
 		<form method="POST" action="?/reset" class="space-y-4" use:enhance>
@@ -31,7 +32,7 @@
 				<div class="space-y-2">
 					<FormControl>
 						{#snippet children({ props })}
-							<FormLabel for="password">New Password</FormLabel>
+							<FormLabel for="password">{m.form_new_password()}</FormLabel>
 							<Input
 								{...props}
 								type="password"
@@ -48,7 +49,7 @@
 				<div class="space-y-2">
 					<FormControl>
 						{#snippet children({ props })}
-							<FormLabel for="confirmPassword">Confirm Password</FormLabel>
+							<FormLabel for="confirmPassword">{m.form_confirm_password()}</FormLabel>
 							<Input
 								{...props}
 								type="password"
@@ -62,7 +63,7 @@
 			</FormField>
 
 			<div class="space-y-2">
-				<Button type="submit" class="w-full">Reset Password</Button>
+				<Button type="submit" class="w-full">{m.reset_password_button()}</Button>
 			</div>
 		</form>
 	</div>

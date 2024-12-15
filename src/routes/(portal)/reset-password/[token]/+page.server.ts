@@ -7,6 +7,7 @@ import { and, eq, isNull } from 'drizzle-orm';
 import { hash } from '@node-rs/argon2';
 import type { PageServerLoad } from '../$types.js';
 import { z } from 'zod';
+import * as m from '$lib/paraglide/messages';
 
 const schema = z
 	.object({
@@ -16,7 +17,7 @@ const schema = z
 		error: z.string().optional()
 	})
 	.refine((data) => data.password === data.confirmPassword, {
-		message: "Passwords don't match",
+		message: m.form_error_password_mismatch(),
 		path: ['confirmPassword']
 	});
 
@@ -37,7 +38,7 @@ export const actions: Actions = {
 			return message(
 				form,
 				{
-					error: 'Reset token is required'
+					error: m.reset_password_error_invalid()
 				},
 				{ status: 400 }
 			);
@@ -54,7 +55,7 @@ export const actions: Actions = {
 			return message(
 				form,
 				{
-					error: 'Invalid or expired reset token. Please request a new password reset.'
+					error: m.reset_password_error_invalid()
 				},
 				{ status: 400 }
 			);
@@ -68,7 +69,7 @@ export const actions: Actions = {
 			return message(
 				form,
 				{
-					error: 'Reset token has expired. Please request a new password reset.'
+					error: m.reset_password_error_expired()
 				},
 				{ status: 400 }
 			);

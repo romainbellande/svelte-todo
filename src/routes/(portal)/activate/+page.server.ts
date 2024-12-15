@@ -8,6 +8,7 @@ import { zod } from 'sveltekit-superforms/adapters';
 import { z } from 'zod';
 import { hash } from '@node-rs/argon2';
 import { deleteSessionTokenCookie } from '@/server/auth';
+import * as m from '$lib/paraglide/messages';
 
 const schema = z
 	.object({
@@ -15,7 +16,7 @@ const schema = z
 		confirmPassword: z.string().min(8).max(100)
 	})
 	.refine((data) => data.password === data.confirmPassword, {
-		message: "Passwords don't match",
+		message: m.form_error_password_mismatch(),
 		path: ['confirmPassword']
 	});
 
@@ -25,7 +26,7 @@ export const load: PageServerLoad = async (event) => {
 	const token = url.searchParams.get('token');
 
 	if (!token) {
-		throw error(400, 'Activation token is required');
+		throw error(400, m.activation_error_invalid());
 	}
 
 	const now = new Date();
@@ -34,11 +35,11 @@ export const load: PageServerLoad = async (event) => {
 	});
 
 	if (!userData) {
-		throw error(404, 'Invalid activation token');
+		throw error(404, m.activation_error_invalid());
 	}
 
 	if (userData.activationTokenExpiresAt && userData.activationTokenExpiresAt < now) {
-		throw error(400, 'Activation token has expired');
+		throw error(400, m.activation_error_expired());
 	}
 
 	const form = await superValidate(zod(schema));
@@ -49,7 +50,7 @@ export const actions: Actions = {
 	default: async ({ request, url }) => {
 		const token = url.searchParams.get('token');
 		if (!token) {
-			throw error(400, 'Activation token is required');
+			throw error(400, m.activation_error_invalid());
 		}
 
 		const form = await superValidate(request, zod(schema));
@@ -63,12 +64,12 @@ export const actions: Actions = {
 		});
 
 		if (!userData) {
-			throw error(404, 'Invalid activation token');
+			throw error(404, m.activation_error_invalid());
 		}
 
 		const now = new Date();
 		if (userData.activationTokenExpiresAt && userData.activationTokenExpiresAt < now) {
-			throw error(400, 'Activation token has expired');
+			throw error(400, m.activation_error_expired());
 		}
 
 		// Update user's password and activate the account

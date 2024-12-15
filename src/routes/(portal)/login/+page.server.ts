@@ -8,10 +8,11 @@ import type { Actions, PageServerLoad } from './$types';
 import { superValidate } from 'sveltekit-superforms/server';
 import { z } from 'zod';
 import { zod } from 'sveltekit-superforms/adapters';
+import * as m from '$lib/paraglide/messages';
 
 const loginSchema = z.object({
-	email: z.string().email('Invalid email address'),
-	password: z.string().min(1, 'Password is required')
+	email: z.string().email(m.form_error_email_invalid()),
+	password: z.string().min(1, m.form_error_password_required())
 });
 
 export const load: PageServerLoad = async (event) => {
@@ -40,7 +41,7 @@ export const actions: Actions = {
 			return fail(400, {
 				form: {
 					...form,
-					errors: { password: ['Incorrect email or password'] }
+					errors: { password: [m.form_error_credentials()] }
 				}
 			});
 		}
@@ -51,7 +52,7 @@ export const actions: Actions = {
 				form: {
 					...form,
 					errors: {
-						email: ['Please activate your account first. Check your email for the activation link.']
+						email: [m.form_error_activation_required()]
 					}
 				}
 			});
@@ -68,7 +69,7 @@ export const actions: Actions = {
 			return fail(400, {
 				form: {
 					...form,
-					errors: { password: ['Incorrect email or password'] }
+					errors: { password: [m.form_error_credentials()] }
 				}
 			});
 		}

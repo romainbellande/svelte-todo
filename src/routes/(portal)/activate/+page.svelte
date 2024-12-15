@@ -25,7 +25,7 @@
 	<div class="w-full max-w-md space-y-4">
 		<div class="space-y-2 text-center">
 			<h1 class="text-2xl font-semibold tracking-tight">{m.activation_title()}</h1>
-			<p class="text-sm text-muted-foreground">Please set your password to activate your account</p>
+			<p class="text-sm text-muted-foreground">{m.activation_subtitle()}</p>
 		</div>
 
 		<form method="POST" class="space-y-4" use:enhance>
@@ -33,12 +33,12 @@
 				<div class="space-y-2">
 					<FormControl>
 						{#snippet children({ props })}
-							<FormLabel for="password">Password</FormLabel>
+							<FormLabel for="password">{m.form_password()}</FormLabel>
 							<Input
 								{...props}
 								type="password"
 								bind:value={$formData.password}
-								placeholder="Enter your password"
+								placeholder={m.form_password_placeholder()}
 							/>
 						{/snippet}
 					</FormControl>
@@ -50,12 +50,12 @@
 				<div class="space-y-2">
 					<FormControl>
 						{#snippet children({ props })}
-							<FormLabel for="confirmPassword">Confirm Password</FormLabel>
+							<FormLabel for="confirmPassword">{m.form_confirm_password()}</FormLabel>
 							<Input
 								{...props}
 								type="password"
 								bind:value={$formData.confirmPassword}
-								placeholder="Confirm your password"
+								placeholder={m.form_confirm_password_placeholder()}
 							/>
 						{/snippet}
 					</FormControl>
@@ -63,7 +63,7 @@
 				</div>
 			</FormField>
 
-			<Button type="submit" class="w-full">Activate Account</Button>
+			<Button type="submit" class="w-full">{m.activation_button()}</Button>
 		</form>
 	</div>
 </div>

@@ -23,7 +23,7 @@
 	const showActivationSuccess = $state($page.url.searchParams.get('activated') === 'true');
 
 	$effect(() => {
-		document.title = 'Login';
+		document.title = m.login_title();
 	});
 </script>
 
@@ -37,8 +37,8 @@
 		{/if}
 
 		<div class="space-y-2 text-center">
-			<h1 class="text-2xl font-semibold tracking-tight">Welcome back</h1>
-			<p class="text-sm text-muted-foreground">Enter your credentials to sign in</p>
+			<h1 class="text-2xl font-semibold tracking-tight">{m.login_title()}</h1>
+			<p class="text-sm text-muted-foreground">{m.login_subtitle()}</p>
 		</div>
 
 		<form method="POST" action="?/login" class="space-y-4" use:enhance>
@@ -46,12 +46,12 @@
 				<div class="space-y-2">
 					<FormControl>
 						{#snippet children({ props })}
-							<FormLabel for="email">Email</FormLabel>
+							<FormLabel for="email">{m.form_email()}</FormLabel>
 							<Input
 								{...props}
 								type="email"
 								bind:value={$formData.email}
-								placeholder="john@example.com"
+								placeholder={m.form_email_placeholder()}
 								aria-invalid={$errors.email ? 'true' : undefined}
 							/>
 						{/snippet}
@@ -64,7 +64,7 @@
 				<div class="space-y-2">
 					<FormControl>
 						{#snippet children({ props })}
-							<FormLabel for="password">Password</FormLabel>
+							<FormLabel for="password">{m.form_password()}</FormLabel>
 							<Input
 								{...props}
 								type="password"
@@ -78,7 +78,7 @@
 			</FormField>
 
 			<div class="space-y-2">
-				<Button type="submit" class="w-full">Sign In</Button>
+				<Button type="submit" class="w-full">{m.login_button()}</Button>
 			</div>
 		</form>
 	</div>
