@@ -47,7 +47,7 @@
 	{#if user}
 		<div class="user-menu relative">
 			<Button variant="ghost" class="flex items-center gap-2" onclick={toggleMenu}>
-				<span>{user.email}</span>
+				<span data-test-id="header-user-email">{user.email}</span>
 				<ChevronDown class={cn('h-4 w-4 transition-transform', isMenuOpen && 'rotate-180')} />
 			</Button>
 

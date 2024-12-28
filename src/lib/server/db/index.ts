@@ -1,16 +1,10 @@
 import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 import * as schema from './schema';
-import { config } from 'dotenv';
+import { env } from '$env/dynamic/private';
 
 // Load environment variables when not in SvelteKit context
-let databaseUrl: string;
-if (process.env.NODE_ENV === 'production') {
-	databaseUrl = process.env.DATABASE_URL!;
-} else {
-	config();
-	databaseUrl = process.env.DATABASE_URL!;
-}
+const databaseUrl = env.DATABASE_URL!;
 
 if (!databaseUrl) throw new Error('DATABASE_URL is not set');
 

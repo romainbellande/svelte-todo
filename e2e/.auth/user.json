@@ -1,0 +1,25 @@
+{
+  "cookies": [
+    {
+      "name": "paraglide_lang",
+      "value": "en",
+      "domain": "localhost",
+      "path": "/",
+      "expires": 1765855649.26989,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "auth-session",
+      "value": "_b3_DxqTLjZxkOmIwn3CEecV",
+      "domain": "localhost",
+      "path": "/",
+      "expires": 1736890050.361726,
+      "httpOnly": true,
+      "secure": false,
+      "sameSite": "Lax"
+    }
+  ],
+  "origins": []
+}
