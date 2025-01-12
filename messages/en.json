@@ -120,5 +120,17 @@
 	"referendums_details_vote_description": "Choose your vote carefully. You can only vote once.",
 	"referendums_details_votes": "Vote history",
 	"referendums_details_votes_description": "List of all votes cast for this referendum",
-	"referendums_details_created_by": "Created by"
+	"referendums_details_created_by": "Created by",
+	"events_title": "Events",
+	"events_new_title": "New Event",
+	"events_edit_title": "Edit Event",
+	"events_form_title": "Title",
+	"events_form_title_placeholder": "Enter event title",
+	"events_form_description": "Description",
+	"events_form_description_placeholder": "Enter event description",
+	"events_form_location": "Location",
+	"events_form_location_placeholder": "Enter event location",
+	"events_form_start_date": "Start Date",
+	"events_form_end_date": "End Date",
+	"events_form_submit": "Create Event"
 }

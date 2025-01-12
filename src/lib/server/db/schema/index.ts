@@ -6,3 +6,4 @@ export * from './list';
 export * from './card';
 export * from './item';
 export * from './referendum';
+export * from './event';

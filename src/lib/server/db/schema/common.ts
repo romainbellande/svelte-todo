@@ -8,3 +8,9 @@ export const createdAt = timestamp('created_at', { withTimezone: true, mode: 'da
 export const updatedAt = timestamp('updated_at', { withTimezone: true, mode: 'date' })
 	.defaultNow()
 	.notNull();
+
+export const commonSchema = {
+	id,
+	createdAt,
+	updatedAt
+};

@@ -1,5 +1,6 @@
+import 'dotenv/config';
 import { migrationClient } from '.';
-import { user, board, referendum, referendumVote } from './schema';
+import { user, board, userBoard, referendum, referendumVote } from './schema';
 import { hash } from '@node-rs/argon2';
 import { reset } from 'drizzle-seed';
 import { drizzle } from 'drizzle-orm/postgres-js';
@@ -83,20 +84,31 @@ async function seedDatabase() {
 		]);
 
 		// Create boards
-		await db.insert(board).values([
-			{
-				name: 'Personal',
+		const boards = await db
+			.insert(board)
+			.values([
+				{
+					name: 'Personal',
+					createdAt: new Date(),
+					updatedAt: new Date()
+				},
+				{
+					name: 'Work',
+					createdAt: new Date(),
+					updatedAt: new Date()
+				}
+			])
+			.returning();
+
+		// Create user-board associations
+		await db.insert(userBoard).values(
+			boards.map((b) => ({
 				userId: adminUser.id,
+				boardId: b.id,
 				createdAt: new Date(),
 				updatedAt: new Date()
-			},
-			{
-				name: 'Work',
-				userId: adminUser.id,
-				createdAt: new Date(),
-				updatedAt: new Date()
-			}
-		]);
+			}))
+		);
 	} catch (error) {
 		console.error('Error seeding database:', error);
 		process.exit(1);

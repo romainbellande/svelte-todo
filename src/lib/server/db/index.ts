@@ -1,10 +1,18 @@
 import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 import * as schema from './schema';
-import { env } from '$env/dynamic/private';
 
-// Load environment variables when not in SvelteKit context
-const databaseUrl = env.DATABASE_URL!;
+// Load environment variables based on context
+let databaseUrl: string;
+
+if (process.env.DATABASE_URL) {
+	// Running in script context (tsx)
+	databaseUrl = process.env.DATABASE_URL;
+} else {
+	// Running in SvelteKit context
+	const { env } = await import('$env/dynamic/private');
+	databaseUrl = env.DATABASE_URL!;
+}
 
 if (!databaseUrl) throw new Error('DATABASE_URL is not set');
 
@@ -32,7 +40,7 @@ export const client = postgres(databaseUrl, {
 // Initialize drizzle with schema and relations
 export const db = drizzle(client, {
 	schema,
-	logger: true
+	logger: false
 });
 
 console.log('Database connections initialized');

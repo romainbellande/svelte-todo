@@ -26,7 +26,7 @@ export async function createTestUser(): Promise<TestUser> {
 		email: testUser.email,
 		passwordHash: testUser.password, // In a real app, this should be hashed
 		firstname: testUser.firstname,
-		lastname: testUser.lastname,
+		lastname: testUser.lastname
 	});
 
 	return testUser;
